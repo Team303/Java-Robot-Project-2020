@@ -7,10 +7,13 @@
 
 package frc.robot;
 
+//Imports all necessary libraries
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Drivebase;
+
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -19,6 +22,9 @@ import frc.robot.Drivebase;
  * project.
  */
 public class Robot extends TimedRobot {
+  public static Shooter shooter;
+  public static Drivebase drivebase;
+  public static OI oi;
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
@@ -30,6 +36,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    
+    shooter = new Shooter();
+    drivebase = new Drivebase();
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
@@ -86,8 +95,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
+    //these are controller 
+    oi.update();
 
-  
+    drivebase.drive(oi.leftY, oi.rightY);
+
+
+    shooter.control();
+    
   }
 
   /**

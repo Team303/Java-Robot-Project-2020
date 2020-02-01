@@ -23,7 +23,6 @@ public class Autonomous {
 	}
 
 	enum AutoStates {
-		Default, RightPeg, LeftPeg, MidPeg, rBoiler, bBoiler, rHopper, rShootAlign, shoot, bHopper, bBoilerAutoline, rBoilerAutoline, rCenterShoot, bCenterShoot,scoreOpRight, scoreOpLeft, scoreOpRightCent, scoreOpLeftCent, bShootAlign;
 	}
 
 	public void run() {
@@ -36,10 +35,7 @@ public class Autonomous {
 		
 	}
 
-	public void assembleTest() {
-		//arr.add(new ActionTrajectory("Straight", 0, 0.01, false));
-        //arr.add(new ActionWait(9999999));
-        
+	public void assembleTest() {        
         arr.add(new ActionIntake(10));
 	}
 

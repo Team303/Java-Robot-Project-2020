@@ -11,23 +11,25 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.playingwithfusion.CANVenom.*;
 import com.playingwithfusion.*;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 
 /**
  * Add your docs here.
  */
 public class Intake {
     //making the varibles
-   static WPI_TalonFX intakeMotor;
-   static WPI_TalonFX conveyorBeltMotor;
-   static TimeOfFlight motionSensor;
+   public CANSparkMax intakeMotor;
+   public CANSparkMax conveyorBeltMotor;
+   public TimeOfFlight motionSensor;
 
 
 
     public Intake(){
         // setting all the varibles
-        intakeMotor = new WPI_TalonFX(RobotMap.INTAKE_ID);
-        conveyorBeltMotor = new WPI_TalonFX(RobotMap.CONVEYOR_ID);
-        motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR_ID);
+        intakeMotor = new CANSparkMax(RobotMap.INTAKE, CANSparkMaxLowLevel.MotorType.kBrushless);
+        conveyorBeltMotor = new CANSparkMax(RobotMap.CONVEYOR_BELT, CANSparkMaxLowLevel.MotorType.kBrushless);
+        motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
 
     }
 
@@ -51,17 +53,17 @@ public class Intake {
     public void conveyorControl() {
 
         if(checkForObject()){
-            conveyorBeltMotor.set(ControlMode.PercentOutput, 0.6);
+            conveyorBeltMotor.set(0.6);
         }
         else {
-            conveyorBeltMotor.set(ControlMode.PercentOutput, 0.0);
+            conveyorBeltMotor.set(0.0);
         }
 
     }    
 
     // runs the intake motor
     public void runIntakeMotor() {
-        intakeMotor.set(ControlMode.PercentOutput, 0.25);
+        intakeMotor.set(0.25);
 
     }
 

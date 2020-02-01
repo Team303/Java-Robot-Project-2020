@@ -21,10 +21,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drivebase extends SubsystemBase {
 
-	public WPI_TalonSRX rightBack;
-	public WPI_TalonSRX rightFront;
-	public WPI_TalonSRX leftFront;
-	public WPI_TalonSRX leftBack;
+	public WPI_TalonFX rightBack;
+	public WPI_TalonFX rightMiddle;
+	public WPI_TalonFX rightFront;
+	public WPI_TalonFX leftFront;
+	public WPI_TalonFX leftMiddle;
+	public WPI_TalonFX leftBack;
 
 	SpeedControllerGroup rightMotors;
 	SpeedControllerGroup leftMotors;
@@ -34,17 +36,23 @@ public class Drivebase extends SubsystemBase {
 	Pose2d pose = new Pose2d();
 
 	public Drivebase()  {
-		rightBack = new WPI_TalonSRX(RobotMap.REAR_RIGHT);
-		rightFront = new WPI_TalonSRX(RobotMap.FRONT_RIGHT);
-		leftBack = new WPI_TalonSRX(RobotMap.REAR_LEFT);
-		leftFront = new WPI_TalonSRX(RobotMap.FRONT_LEFT);
-		rightMotors = new SpeedControllerGroup(rightBack, rightFront);
-		leftMotors = new SpeedControllerGroup(leftBack, leftFront);
+		rightBack = new WPI_TalonFX(RobotMap.BACK_RIGHT);
+		rightMiddle = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
+		rightFront = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
+		leftBack = new WPI_TalonFX(RobotMap.BACK_LEFT);
+		leftMiddle = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
+		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);
+
+
+		rightMotors = new SpeedControllerGroup(rightBack, rightFront, rightMiddle);
+		leftMotors = new SpeedControllerGroup(leftBack, leftFront, leftMiddle);
 		drive = new DifferentialDrive(leftMotors, rightMotors);
 		
-		rightBack.setInverted(RobotMap.REAR_RIGHT_INV);
+		rightBack.setInverted(RobotMap.BACK_RIGHT_INV);
+		rightMiddle.setInverted(RobotMap.MIDDLE_RIGHT_INV);
 		rightFront.setInverted(RobotMap.FRONT_RIGHT_INV); 
-		leftBack.setInverted(RobotMap.REAR_LEFT_INV);
+		leftBack.setInverted(RobotMap.BACK_LEFT_INV);
+		leftMiddle.setInverted(RobotMap.MIDDLE_LEFT_INV);
 		leftFront.setInverted(RobotMap.FRONT_LEFT_INV);
 		
 		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
@@ -58,6 +66,15 @@ public class Drivebase extends SubsystemBase {
 	public void setOutputVolts(double left, double right) {
 		leftMotors.setVoltage(-left * SmartDashboard.getNumber("Constant", 0.8));
 		rightMotors.setVoltage(right *  SmartDashboard.getNumber("Constant", 0.8));
+	}
+
+
+	public int getLeftEncoder() {
+		return leftFront.getSelectedSensorPosition(0);
+	}
+
+	public int getRightEncoder() {
+		return -rightBack.getSelectedSensorPosition(0);
 	}
 
 	//--------------- POSE METHODS---------------------
@@ -93,14 +110,6 @@ public class Drivebase extends SubsystemBase {
 
 	//------------------HELPER METHODS------------------------------
 
-
-	public int getLeftEncoder() {
-		return leftFront.getSelectedSensorPosition(0);
-	}
-
-	public int getRightEncoder() {
-		return -rightBack.getSelectedSensorPosition(0);
-	}
 
 	public double getLeftMeters() {
 		return leftFront.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;

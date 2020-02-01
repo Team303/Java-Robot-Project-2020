@@ -9,40 +9,37 @@ package frc.robot;
 
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter{
 
-	WPI_TalonSRX shooter;
-
-	Timer t;
-	double savedSetpoint;
-	int count = 0;
-	//Indexer indexer;
-	//Agitator agitator;
-	static final double maxFeedError = 0.15; //.15
+	 CANSparkMax shooter;
+	 CANSparkMax shooterSlave;
+	 double savedSetpoint;
+	 int count = 0;
 	
-	public Shooter() {
-		shooter = new WPI_TalonSRX(RobotMap.SHOOTER_ID);
-		//THIS NEXT LINE MIGHT BE WRONG SO IF THIS DOESN'T WORK 
-		//YOU KNOW WHAT TO BLAME
-		//shooter.set(ControlMode.PercentOutput, 9.);
+	 static final double maxFeedError = 0.15; //.15
+	
+	 public Shooter() {
+	 	shooter = new CANSparkMax(RobotMap.SHOOTER, CANSparkMaxLowLevel.MotorType.kBrushless);
+		shooterSlave = new CANSparkMax(RobotMap.SHOOTER_SLAVE, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+		/*
+		 //shooter.set(ControlMode.PercentOutput, 9.);
         setPIDF(shooter, .3, 0.000003, 1, 0.02475);
-		shooter.setSafetyEnabled(true);
+		//shooter.setSafetyEnabled(true);
 		shooter.getInverted();
 		shooter.set(0);
-				
-		//indexer = new Indexer();
-		//agitator = new Agitator();
-		t = new Timer();
+		t = new Timer();*/
 	}
 	
 	public void control() {
 		
-		double setpoint;
+		/*double setpoint;
 		
 		
 		if(OI.xBtnY) { //set setpoint
@@ -60,40 +57,16 @@ public class Shooter{
 		setSetpoint(setpoint);
 		
 		if(setpoint!=0 && (getSpeed()<=(setpoint*(1+maxFeedError)) && getSpeed()>=(setpoint*(1-maxFeedError)))) { //feed fuel if shooter is close to setpoint
-			
-			
-			//indexer.set(0.8);
-			
-			/*if(count<0) {
-				count++;
-				//agitator.set(-0.4);
-				SmartDashboard.putBoolean("shooter good?", false);
-			}
-			else if (Robot.pdp.getCurrent(11)>=13){
-				count = -20;
-				SmartDashboard.putBoolean("shooter good?", false);
-			} else {
-				//agitator.set(.6);  ///////0.85
-				SmartDashboard.putBoolean("shooter good?", true);
-			}
-			*/
-		} else {
-			//agitator.set(0);
-			//indexer.set(0);
-		}
-            
-		savedSetpoint = setpoint;
+		savedSetpoint = setpoint;*/
 	}
 	
 	public void setSetpoint(double setpoint) {
-		shooter.set(setpoint);
-
-
-
+		//shooter.set(setpoint);
 	}
 	
 	public double getSpeed() {
-		return shooter.getSelectedSensorVelocity();
+		//return shooter.getSelectedSensorVelocity();
+		return 0; //Silences the compiler
 	}
 	
 	/*public void resetI() {

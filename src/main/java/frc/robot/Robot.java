@@ -54,18 +54,12 @@ public class Robot extends TimedRobot {
 		timer.start();
 		drivebase = new Drivebase();
 		
-		//commands = new Commands();
 		navX = new NavX();
 		navX.navX.zeroYaw();
 		intake = new Intake();
 		Robot.drivebase.zeroEncoder();
 
-		SmartDashboard.putNumber("P value", 2.4);
-		SmartDashboard.putNumber("I value", 0.0);
-		SmartDashboard.putNumber("D value", 0.0);
-		SmartDashboard.putNumber("Constant", 0.8);
-		SmartDashboard.putNumber("Left Volts", 0.0);
-		SmartDashboard.putNumber("Right Volts", 0.0);
+
 
 	}
 
@@ -73,6 +67,7 @@ public class Robot extends TimedRobot {
 	public void robotPeriodic() {
 		updateSmartDashboard();
 		OI.update();
+
 		if (OI.lBtn[2]) {
 			navX.navX.zeroYaw();
 		}
@@ -85,21 +80,6 @@ public class Robot extends TimedRobot {
 
 		Robot.drivebase.zeroEncoder();
 		Robot.drivebase.reset();
-		try{
-		//	autoCommand = commands.getAutonomousCommand();
-		} catch (Exception e) {
-			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
-		}
-
-		System.out.println("------------------------------------------START-----------------------------------------------");
-		System.out.println("------------------------------------------START-----------------------------------------------");
-		System.out.println("------------------------------------------START-----------------------------------------------");
-		System.out.println("------------------------------------------START-----------------------------------------------");
-		System.out.println("------------------------------------------START-----------------------------------------------");
-		System.out.println("------------------------------------------START-----------------------------------------------");
-
-		autoCommand.schedule();
-
 
 	}
 
@@ -108,19 +88,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {	
-		Robot.drivebase.periodic();
-		CommandScheduler.getInstance().run();
+		//Robot.drivebase.periodic();
 		
-		//System.out.println("LEFT ENC:" + Robot.drivebase.getLeftEncoder());
-		//System.out.println("RIGHT ENC:" + Robot.drivebase.getRightEncoder());
-		System.out.println("X Pose:" + Robot.drivebase.getPoseX());
-		System.out.println("Y Pose:" + Robot.drivebase.getPoseY());
-		System.out.println("Left Speed:" + Robot.drivebase.getLeftVelocity());
-		System.out.println("Right Speed:" + Robot.drivebase.getRightVelocity());
-		System.out.println("NavX:" + Robot.navX.getYaw());
-		System.out.println("LEFT PWR:" + Robot.drivebase.leftFront.getMotorOutputVoltage());
-		System.out.println("RIGHT PWR:" + Robot.drivebase.rightFront.getMotorOutputVoltage());
-		System.out.println("----------BREAK-------");
 	}
 
 	/**
@@ -147,17 +116,12 @@ public class Robot extends TimedRobot {
 		} else if (OI.lBtn[3]) {
 			Robot.drivebase.zeroEncoder();
 		} else {
-			//Robot.drivebase.drive(OI.lY, OI.rY);
+			Robot.drivebase.drive(OI.lY, OI.rY);
 		}
 
 		if(OI.xRightTrigger > 0.7){
 			intake.intakeControl();
 		}		
-
-
-
-		Robot.drivebase.setOutputVolts(-SmartDashboard.getNumber("Left Volts", 0.0), SmartDashboard.getNumber("Left Volts", 0.0));
-
 
 	}
 
@@ -166,15 +130,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
 		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
 		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
-		SmartDashboard.putNumber("Original Heading", Robot.navX.getOriginalHeading());
-		SmartDashboard.putNumber("GetPoseX", Robot.drivebase.getPoseX());
-		SmartDashboard.putNumber("GetPoseY", Robot.drivebase.getPoseY());
-		SmartDashboard.putNumber("Left Wheel Speed", Robot.drivebase.getLeftVelocity());
-		SmartDashboard.putNumber("Right Wheel Speed", Robot.drivebase.getLeftVelocity());
-		SmartDashboard.putNumber("Left Meters", Robot.drivebase.getLeftMeters());
-		SmartDashboard.putNumber("Right Meters", Robot.drivebase.getRightMeters());
-		SmartDashboard.putNumber("Left Feet", Units.metersToFeet(Robot.drivebase.getLeftMeters()));
-		SmartDashboard.putNumber("Right Feet", Units.metersToFeet(Robot.drivebase.getRightMeters()));
+		
 		SmartDashboard.putNumber("Left Power", Robot.drivebase.leftFront.get());
 		SmartDashboard.putNumber("Right Power", Robot.drivebase.rightFront.get());
 

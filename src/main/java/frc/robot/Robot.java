@@ -7,108 +7,177 @@
 
 package frc.robot;
 
-//Imports all necessary libraries
+//import frc.robot.Autonomous.AutoStates;
+
+
+import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Drivebase;
+import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.io.IOException;
+
+//import com.sun.java.swing.plaf.windows.TMSchema.Control;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj2.command.Command;
 
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the TimedRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the build.gradle file in the
- * project.
- */
-public class Robot extends TimedRobot {
-  public static Shooter shooter;
-  public static Drivebase drivebase;
-  public static OI oi;
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+public class Robot extends TimedRobot {	
+	//static AutoStates autoSelected;
+//	SendableChooser<AutoStates> chooser = new SendableChooser<>();
+	//static Drivebase driveSubsystem;
+	static Timer timer = new Timer();
+	//static Autonomous auto;
+	static NavX navX;
+	private static double width;
+	private static double centerX;
+	private static double area;
+	public static Joystick left;
+	public static Joystick right;
+//	public static Commands commands;
+	public static Drivebase drivebase;
+	public static Command autoCommand;
+	public static Intake intake;
+	
 
-  /**
-   * This function is run when the robot is first started up and should be
-   * used for any initialization code.
-   */
-  @Override
-  public void robotInit() {
-    
-    shooter = new Shooter();
-    drivebase = new Drivebase();
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-  }
+	@Override
+	public void robotInit() {
+		
+		timer.start();
+		drivebase = new Drivebase();
+		
+		//commands = new Commands();
+		navX = new NavX();
+		navX.navX.zeroYaw();
+		intake = new Intake();
+		Robot.drivebase.zeroEncoder();
 
-  /**
-   * This function is called every robot packet, no matter the mode. Use
-   * this for items like diagnostics that you want ran during disabled,
-   * autonomous, teleoperated and test.
-   *
-   * <p>This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating.
-   */
-  @Override
-  public void robotPeriodic() {
-  }
+		SmartDashboard.putNumber("P value", 2.4);
+		SmartDashboard.putNumber("I value", 0.0);
+		SmartDashboard.putNumber("D value", 0.0);
+		SmartDashboard.putNumber("Constant", 0.8);
+		SmartDashboard.putNumber("Left Volts", 0.0);
+		SmartDashboard.putNumber("Right Volts", 0.0);
 
-  /**
-   * This autonomous (along with the chooser code above) shows how to select
-   * between different autonomous modes using the dashboard. The sendable
-   * chooser code works with the Java SmartDashboard. If you prefer the
-   * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-   * getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to
-   * the switch structure below with additional strings. If using the
-   * SendableChooser make sure to add them to the chooser code above as well.
-   */
-  @Override
-  public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-  }
+	}
 
-  /**
-   * This function is called periodically during autonomous.
-   */
-  @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
-  }
+	@Override
+	public void robotPeriodic() {
+		updateSmartDashboard();
+		OI.update();
+		if (OI.lBtn[2]) {
+			navX.navX.zeroYaw();
+		}
+		
+	}
+	
 
-  /**
-   * This function is called periodically during operator control.
-   */
-  @Override
-  public void teleopPeriodic() {
-    //these are controller 
-    oi.update();
+	@Override
+	public void autonomousInit() {
 
-    drivebase.drive(oi.leftY, oi.rightY);
+		Robot.drivebase.zeroEncoder();
+		Robot.drivebase.reset();
+		try{
+		//	autoCommand = commands.getAutonomousCommand();
+		} catch (Exception e) {
+			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
+		}
+
+		System.out.println("------------------------------------------START-----------------------------------------------");
+		System.out.println("------------------------------------------START-----------------------------------------------");
+		System.out.println("------------------------------------------START-----------------------------------------------");
+		System.out.println("------------------------------------------START-----------------------------------------------");
+		System.out.println("------------------------------------------START-----------------------------------------------");
+		System.out.println("------------------------------------------START-----------------------------------------------");
+
+		autoCommand.schedule();
 
 
-    shooter.control();
-    
-  }
+	}
 
-  /**
-   * This function is called periodically during test mode.
-   */
-  @Override
-  public void testPeriodic() {
-  }
+	/**
+	 * This function is called periodically during autonomous
+	 */
+	@Override
+	public void autonomousPeriodic() {	
+		Robot.drivebase.periodic();
+		CommandScheduler.getInstance().run();
+		
+		//System.out.println("LEFT ENC:" + Robot.drivebase.getLeftEncoder());
+		//System.out.println("RIGHT ENC:" + Robot.drivebase.getRightEncoder());
+		System.out.println("X Pose:" + Robot.drivebase.getPoseX());
+		System.out.println("Y Pose:" + Robot.drivebase.getPoseY());
+		System.out.println("Left Speed:" + Robot.drivebase.getLeftVelocity());
+		System.out.println("Right Speed:" + Robot.drivebase.getRightVelocity());
+		System.out.println("NavX:" + Robot.navX.getYaw());
+		System.out.println("LEFT PWR:" + Robot.drivebase.leftFront.getMotorOutputVoltage());
+		System.out.println("RIGHT PWR:" + Robot.drivebase.rightFront.getMotorOutputVoltage());
+		System.out.println("----------BREAK-------");
+	}
+
+	/**
+	 * Run once during operator control
+	 */
+	@Override
+	public void teleopInit() {
+		navX.navX.zeroYaw();
+		timer.reset();
+	}
+
+	/**
+	 * This function is called periodically during operator control
+	 */
+	@Override
+	public void teleopPeriodic() {
+		OI.update();
+		Robot.drivebase.periodic();
+		
+
+
+		if (OI.lBtn[2]) {
+			navX.navX.zeroYaw();
+		} else if (OI.lBtn[3]) {
+			Robot.drivebase.zeroEncoder();
+		} else {
+			//Robot.drivebase.drive(OI.lY, OI.rY);
+		}
+
+		if(OI.xRightTrigger > 0.7){
+			intake.intakeControl();
+		}		
+
+
+
+		Robot.drivebase.setOutputVolts(-SmartDashboard.getNumber("Left Volts", 0.0), SmartDashboard.getNumber("Left Volts", 0.0));
+
+
+	}
+
+
+	public void updateSmartDashboard() {
+		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
+		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
+		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
+		SmartDashboard.putNumber("Original Heading", Robot.navX.getOriginalHeading());
+		SmartDashboard.putNumber("GetPoseX", Robot.drivebase.getPoseX());
+		SmartDashboard.putNumber("GetPoseY", Robot.drivebase.getPoseY());
+		SmartDashboard.putNumber("Left Wheel Speed", Robot.drivebase.getLeftVelocity());
+		SmartDashboard.putNumber("Right Wheel Speed", Robot.drivebase.getLeftVelocity());
+		SmartDashboard.putNumber("Left Meters", Robot.drivebase.getLeftMeters());
+		SmartDashboard.putNumber("Right Meters", Robot.drivebase.getRightMeters());
+		SmartDashboard.putNumber("Left Feet", Units.metersToFeet(Robot.drivebase.getLeftMeters()));
+		SmartDashboard.putNumber("Right Feet", Units.metersToFeet(Robot.drivebase.getRightMeters()));
+		SmartDashboard.putNumber("Left Power", Robot.drivebase.leftFront.get());
+		SmartDashboard.putNumber("Right Power", Robot.drivebase.rightFront.get());
+
+
+	}
 }

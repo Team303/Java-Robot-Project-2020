@@ -31,21 +31,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 
 public class Robot extends TimedRobot {	
-	//static AutoStates autoSelected;
-//	SendableChooser<AutoStates> chooser = new SendableChooser<>();
-	//static Drivebase driveSubsystem;
+
 	static Timer timer = new Timer();
-	//static Autonomous auto;
-	static NavX navX;
-	private static double width;
-	private static double centerX;
-	private static double area;
-	public static Joystick left;
-	public static Joystick right;
-//	public static Commands commands;
+	//static NavX navX;
 	public static Drivebase drivebase;
-	public static Command autoCommand;
-	public static Intake intake;
+	//public static Intake intake;
 	
 
 	@Override
@@ -54,12 +44,10 @@ public class Robot extends TimedRobot {
 		timer.start();
 		drivebase = new Drivebase();
 		
-		navX = new NavX();
-		navX.navX.zeroYaw();
-		intake = new Intake();
-		Robot.drivebase.zeroEncoder();
-
-
+		//navX = new NavX();
+		//navX.navX.zeroYaw();
+		//intake = new Intake();
+		//Robot.drivebase.zeroEncoder();
 
 	}
 
@@ -68,9 +56,9 @@ public class Robot extends TimedRobot {
 		updateSmartDashboard();
 		OI.update();
 
-		if (OI.lBtn[2]) {
+		/*if (OI.lBtn[2]) {
 			navX.navX.zeroYaw();
-		}
+		}*/
 		
 	}
 	
@@ -78,8 +66,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 
-		Robot.drivebase.zeroEncoder();
-		Robot.drivebase.reset();
+		//Robot.drivebase.zeroEncoder();
+		//Robot.drivebase.reset();
 
 	}
 
@@ -97,8 +85,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopInit() {
-		navX.navX.zeroYaw();
-		timer.reset();
+		//navX.navX.zeroYaw();
+		//timer.reset();
 	}
 
 	/**
@@ -107,32 +95,33 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		OI.update();
-		Robot.drivebase.periodic();
+		//Robot.drivebase.periodic();
 		
-
-
 		if (OI.lBtn[2]) {
-			navX.navX.zeroYaw();
+			//navX.navX.zeroYaw();
 		} else if (OI.lBtn[3]) {
 			Robot.drivebase.zeroEncoder();
 		} else {
-			Robot.drivebase.drive(OI.lY, OI.rY);
+			Robot.drivebase.drive(-OI.lY, -OI.rY);
 		}
-
-		if(OI.xRightTrigger > 0.7){
-			intake.intakeControl();
-		}		
-
 	}
 
 
 	public void updateSmartDashboard() {
-		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
-		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
-		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
+		SmartDashboard.putNumber("Left Front Encoder", Robot.drivebase.getLeftEncoder()[0]);
+		SmartDashboard.putNumber("Right Front Encoder", Robot.drivebase.getRightEncoder()[0]);
+		SmartDashboard.putNumber("Left Middle Encoder", Robot.drivebase.getLeftEncoder()[1]);
+		SmartDashboard.putNumber("Right Middle Encoder", Robot.drivebase.getRightEncoder()[1]);
+		SmartDashboard.putNumber("Left Back Encoder", Robot.drivebase.getLeftEncoder()[2]);
+		SmartDashboard.putNumber("Right Back Encoder", Robot.drivebase.getRightEncoder()[2]);
+		//SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
 		
 		SmartDashboard.putNumber("Left Power", Robot.drivebase.leftFront.get());
 		SmartDashboard.putNumber("Right Power", Robot.drivebase.rightFront.get());
+
+
+		SmartDashboard.putNumber("Left Joystick", OI.lY);
+		SmartDashboard.putNumber("Right Joystick", OI.rY);
 
 
 	}

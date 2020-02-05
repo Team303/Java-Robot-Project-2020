@@ -7,7 +7,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.wpilibj.*;
@@ -19,7 +21,11 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj.Talon;
+
 public class Drivebase extends SubsystemBase {
+
+
 
 	public WPI_TalonFX rightBack;
 	public WPI_TalonFX rightMiddle;
@@ -27,6 +33,14 @@ public class Drivebase extends SubsystemBase {
 	public WPI_TalonFX leftFront;
 	public WPI_TalonFX leftMiddle;
 	public WPI_TalonFX leftBack;
+	
+	/*
+	Talon rightFront;
+	Talon rightMiddle;
+	Talon rightBack;
+	Talon leftFront;
+	Talon leftMiddle;
+	Talon leftBack;*/
 
 	SpeedControllerGroup rightMotors;
 	SpeedControllerGroup leftMotors;
@@ -42,10 +56,27 @@ public class Drivebase extends SubsystemBase {
 		leftBack = new WPI_TalonFX(RobotMap.BACK_LEFT);
 		leftMiddle = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
 		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);
+		
+		/*
+		rightBack.configFactoryDefault();
+		rightMiddle.configFactoryDefault();
+		rightFront.configFactoryDefault();
+		leftBack.configFactoryDefault();
+		leftMiddle.configFactoryDefault();
+		leftFront.configFactoryDefault();
 
+		rightBack.setNeutralMode(NeutralMode.Brake);
+		rightMiddle.setNeutralMode(NeutralMode.Brake);
+		rightFront.setNeutralMode(NeutralMode.Brake);
+		leftBack.setNeutralMode(NeutralMode.Brake);
+		leftMiddle.setNeutralMode(NeutralMode.Brake);
+		leftFront.setNeutralMode(NeutralMode.Brake);
 
+		*/
+
+		
 		rightMotors = new SpeedControllerGroup(rightBack, rightFront, rightMiddle);
-		leftMotors = new SpeedControllerGroup(leftBack, leftFront, leftMiddle);
+		leftMotors = new SpeedControllerGroup(leftFront, leftMiddle, leftBack);
 		drive = new DifferentialDrive(leftMotors, rightMotors);
 		
 		rightBack.setInverted(RobotMap.BACK_RIGHT_INV);
@@ -54,38 +85,65 @@ public class Drivebase extends SubsystemBase {
 		leftBack.setInverted(RobotMap.BACK_LEFT_INV);
 		leftMiddle.setInverted(RobotMap.MIDDLE_LEFT_INV);
 		leftFront.setInverted(RobotMap.FRONT_LEFT_INV);
-		
-		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
-		rightBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
+
+		/* leftBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
+		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
+		leftMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
+		rightBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
+		rightMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
+		rightFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000); */
 	}
 	
 	public void drive(double left, double right) {
+		/* rightBack.set(ControlMode.PercentOutput, right);
+		rightMiddle.set(ControlMode.PercentOutput, right);
+		rightFront.set(ControlMode.PercentOutput, right);
+		leftFront.set(ControlMode.PercentOutput, left);
+		leftMiddle.set(ControlMode.PercentOutput, left);
+		leftBack.set(ControlMode.PercentOutput, left); */
 		drive.tankDrive(left, right);
+
 	}
 
+	/*
 	public void setOutputVolts(double left, double right) {
 		leftMotors.setVoltage(-left * SmartDashboard.getNumber("Constant", 0.8));
 		rightMotors.setVoltage(right *  SmartDashboard.getNumber("Constant", 0.8));
 	}
+	*/
 
 
-	public int getLeftEncoder() {
-		return leftFront.getSelectedSensorPosition(0);
+	
+	public int[] getLeftEncoder() {
+		return new int[] { leftFront.getSelectedSensorPosition(0),
+			leftMiddle.getSelectedSensorPosition(0),
+			leftBack.getSelectedSensorPosition(0)};
 	}
 
-	public int getRightEncoder() {
-		return -rightBack.getSelectedSensorPosition(0);
+	public int[] getRightEncoder() {
+		return new int[] { rightFront.getSelectedSensorPosition(0),
+			rightMiddle.getSelectedSensorPosition(0),
+			rightBack.getSelectedSensorPosition(0)};	
+	}
+
+	public void zeroEncoder() {
+		leftFront.setSelectedSensorPosition(0, 0, 1000);
+		leftMiddle.setSelectedSensorPosition(0, 0, 1000);
+		leftBack.setSelectedSensorPosition(0, 0, 1000);
+		
+		rightFront.setSelectedSensorPosition(0, 0, 1000);
+
+
+		rightMiddle.setSelectedSensorPosition(0, 0, 1000);
+		rightBack.setSelectedSensorPosition(0, 0, 1000);
 	}
 
 	//--------------- POSE METHODS---------------------
-
+/*
 	public void periodic() {
 		pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftMeters(), getRightMeters());
 	}
-	public void zeroEncoder() {
-		leftFront.setSelectedSensorPosition(0, 0, 1000);
-		rightBack.setSelectedSensorPosition(0, 0, 1000);
-	}
+	
 
 	public DifferentialDriveWheelSpeeds getWheelSpeeds() {
 		return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
@@ -127,6 +185,6 @@ public class Drivebase extends SubsystemBase {
 		return -rightBack.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
 	}
 	
-
+*/
 
 }

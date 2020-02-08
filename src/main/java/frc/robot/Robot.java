@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-//import frc.robot.Autonomous.AutoStates;
-
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,8 +19,6 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import java.io.IOException;
-
-//import com.sun.java.swing.plaf.windows.TMSchema.Control;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -48,9 +44,23 @@ public class Robot extends TimedRobot {
 		navX = new NavX();
 		navX.navX.zeroYaw();
 		
-		
 		commands = new Commands();
-	
+
+		//Smart Dashboard Commands
+		SmartDashboard.putNumber("lP value", 1.0);
+		SmartDashboard.putNumber("lI value", 0.0);
+		SmartDashboard.putNumber("lD value", 0.0);
+		SmartDashboard.putNumber("rP value", 1.0);
+		SmartDashboard.putNumber("rI value", 0.0);
+		SmartDashboard.putNumber("rD value", 0.0);
+   
+        SmartDashboard.putNumber("kS", RobotMap.ksVolts);
+        SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
+        SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
+
+        SmartDashboard.putNumber("Max Velocity", 3.0);
+        SmartDashboard.putNumber("Max Acceleration", 3.0);
+
 	}
 
 	@Override

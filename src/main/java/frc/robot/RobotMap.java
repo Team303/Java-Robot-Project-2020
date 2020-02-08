@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.util.Units;
 
 public class RobotMap {
 
@@ -48,11 +49,11 @@ public class RobotMap {
 	public static final double kvVoltSecondsPerMeter = 0.915;	
 	public static final double kaVoltSecondsSquaredPerMeter = 0.1; // characterization - 0.252
 	
-	public static final double kTrackWidthMeters = 0.602996;
+	public static final double kTrackWidthMeters = Units.inchesToMeters(23.75);
 	public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
 
 	public static final int kEncoderCPR = 20480;
-	public static final double kWheelDiameterMeters = 0.156;
+	public static final double kWheelDiameterMeters = Units.inchesToMeters(6.125);
 	public static final double kEncoderConstant = (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
 

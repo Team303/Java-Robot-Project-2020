@@ -14,13 +14,17 @@ import com.revrobotics.CANSparkMaxLowLevel;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.ControlType;
 
 public class Shooter{
 
 	CANSparkMax shooter;
 	CANSparkMax shooterSlave;
 
-	CANPIDControler shooterPID;
+	CANPIDController shooterPID;
 	CANEncoder	shooterEncoder;
 	int count = 0;
 

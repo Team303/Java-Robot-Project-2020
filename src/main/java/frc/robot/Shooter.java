@@ -17,67 +17,67 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter{
 
-	 CANSparkMax shooter;
-	 CANSparkMax shooterSlave;
-	 double savedSetpoint;
-	 int count = 0;
-	
-	 static final double maxFeedError = 0.15; //.15
-	
-	 public Shooter() {
-	 	shooter = new CANSparkMax(RobotMap.SHOOTER, CANSparkMaxLowLevel.MotorType.kBrushless);
-		shooterSlave = new CANSparkMax(RobotMap.SHOOTER_SLAVE, CANSparkMaxLowLevel.MotorType.kBrushless);
+	CANSparkMax shooter;
+	CANSparkMax shooterSlave;
 
-		/*
-		 //shooter.set(ControlMode.PercentOutput, 9.);
-        setPIDF(shooter, .3, 0.000003, 1, 0.02475);
-		//shooter.setSafetyEnabled(true);
-		shooter.getInverted();
-		shooter.set(0);
-		t = new Timer();*/
+	CANPIDControler shooterPID;
+	CANEncoder	shooterEncoder;
+	int count = 0;
+
+	double setpoint = 0;
+	
+	static final double maxFeedError = 0.15; //.15
+	
+	public Shooter() {
+	 	shooter = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
+		shooterSlave = new CANSparkMax(RobotMap.SHOOTER_SLAVE, MotorType.kBrushless);
+
+		shooter.setInverted(RobotMap.SHOOTER_INV);
+		shooterSlave.setInverted(RobotMap.SHOOTER_INV);
+
+		shooterSlave.follow(shooter);
+
+		shooter.restoreFactoryDefaults();
+		shooterSlave.restoreFactoryDefaults();
+
+		shooterPID = shooter.getPIDController();
+		shooterEncoder = shooter.getEncoder();
+
+		double kP = 0.3;
+		double kI = 0.000003;
+		double kD = 1;
+		double kIz = 0;
+		double kFF = 0.02475;
+		double kMaxOutput = 1.0;
+		double kMinOutput = -1.0;
+
+		shooterPID.setP(kP);
+		shooterPID.setI(kI);
+		shooterPID.setD(kD);
+		//shooterPID.setIZone(kIz);
+		shooterPID.setFF(kFF);
+		shooterPID.setOutputRange(kMinOutput, kMaxOutput);
+
+		setpoint = 0;
+	
 	}
 	
 	public void control() {
-		
-		/*double setpoint;
-		
-		
-		if(OI.xBtnY) { //set setpoint
-			setpoint = 0;
-			//shooter.disable();
-			//shooterSlave.disable();
-		} else if(OI.xBtnX) {
-			//shooter.enable();
-			//shooterSlave.enable();
-			setpoint =20250; // was -26150
-		} else {
-			setpoint = savedSetpoint;
-		}
-		
-		setSetpoint(setpoint);
-		
-		if(setpoint!=0 && (getSpeed()<=(setpoint*(1+maxFeedError)) && getSpeed()>=(setpoint*(1-maxFeedError)))) { //feed fuel if shooter is close to setpoint
-		savedSetpoint = setpoint;*/
+		shooterPID.setReference(setpoint, ControlType.kVelocity);
 	}
 	
-	public void setSetpoint(double setpoint) {
-		//shooter.set(setpoint);
+	public void setSetpoint(double set) {
+		this.setpoint = set;
 	}
 	
 	public double getSpeed() {
-		//return shooter.getSelectedSensorVelocity();
-		return 0; //Silences the compiler
+		return shooterEncoder.getVelocity();
 	}
 	
 	/*public void resetI() {
 		shooter.clearIAccum();
 	}*/
 	
-	public void setPIDF(WPI_TalonSRX motor, double P, double I, double D, double F) {
-		motor.config_kP(0 , P);
-		motor.config_kI(0 , I);
-		motor.config_kD(0 , D);
-		motor.config_kF(0 , F);
-	}
+
 	
 }

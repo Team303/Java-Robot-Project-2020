@@ -32,12 +32,15 @@ public class RobotMap {
 	public static final boolean MIDDLE_RIGHT_INV = false;
 	public static final boolean BACK_RIGHT_INV = false;
 
-	public static final int CONVEYOR_BELT = -1;
+	public static final int INDEXER = -1;
 	public static final int INTAKE = -1;
 	public static final int MOTION_SENSOR = -1;
 
 	public static final int SHOOTER = -1;
 	public static final int SHOOTER_SLAVE = -1;
+
+	public static final boolean SHOOTER_INV = false;
+	public static final boolean SHOOTER_SLAVE_INV = true;
 
 
 	//From Robot Characterization 
@@ -48,8 +51,8 @@ public class RobotMap {
 	public static final double kTrackWidthMeters = 0.602996;
 	public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
 
-	public static final int kEncoderCPR = 2350;
-	public static final double kWheelDiameterMeters = 6.125;
+	public static final int kEncoderCPR = 20480;
+	public static final double kWheelDiameterMeters = 0.156;
 	public static final double kEncoderConstant = (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
 

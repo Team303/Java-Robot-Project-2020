@@ -43,6 +43,8 @@ public class RobotMap {
 	public static final boolean SHOOTER_INV = false;
 	public static final boolean SHOOTER_SLAVE_INV = true;
 
+	// FOR CONTROL PANEL 
+	public static final int CONTROL_PANEL_MOTOR = -1;
 
 	//From Robot Characterization 
 	public static final double ksVolts = 0.843; 					

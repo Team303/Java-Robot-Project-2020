@@ -1,149 +1,239 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
+/**
+ * This is a very simple robot program that can be used to send telemetry to
+ * the data_logger script to characterize your drivetrain. If you wish to use
+ * your actual robot code, you only need to implement the simple logic in the
+ * autonomousPeriodic function and change the NetworkTables update rate
+ */
 
 package frc.robot;
 
+import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Units;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
-import java.io.IOException;
+import com.ctre.phoenix.sensors.PigeonIMU;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.SPI;
 
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+public class Robot extends TimedRobot {
 
-public class Robot extends TimedRobot {	
+  static private double WHEEL_DIAMETER = 0.156;
+  static private double ENCODER_EDGES_PER_REV = 20480;
+  static private int PIDIDX = 0;
 
-	static NavX navX;
-	public static Drivebase drivebase;
-	public static Commands commands;
-	public static Command autoCommand;
-	//public static Intake intake;
-	
+  Joystick left;
+  Joystick right;
 
-	@Override
-	public void robotInit() {
-		
-		drivebase = new Drivebase();
-		Robot.drivebase.zeroEncoders();	
-		
-		navX = new NavX();
-		navX.navX.zeroYaw();
-		
-		commands = new Commands();
+  DifferentialDrive drive;
 
-		//Smart Dashboard Commands
-		SmartDashboard.putNumber("lP value", 1.0);
-		SmartDashboard.putNumber("lI value", 0.0);
-		SmartDashboard.putNumber("lD value", 0.0);
-		SmartDashboard.putNumber("rP value", 1.0);
-		SmartDashboard.putNumber("rI value", 0.0);
-		SmartDashboard.putNumber("rD value", 0.0);
+  WPI_TalonFX leftMaster;
+  WPI_TalonFX rightMaster;
+
+  Supplier<Double> leftEncoderPosition;
+  Supplier<Double> leftEncoderRate;
+  Supplier<Double> rightEncoderPosition;
+  Supplier<Double> rightEncoderRate;
+  Supplier<Double> gyroAngleRadians;
+
+  NetworkTableEntry autoSpeedEntry =
+      NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
+  NetworkTableEntry telemetryEntry =
+      NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
+  NetworkTableEntry rotateEntry =
+    NetworkTableInstance.getDefault().getEntry("/robot/rotate");
+
+  double priorAutospeed = 0;
+  Number[] numberArray = new Number[10];
+
+  @Override
+  public void robotInit() {
+
+    left = new Joystick(0);
+    right = new Joystick(1);
+
+    leftMaster = new WPI_TalonFX(2);
+    leftMaster.setInverted(false);
+    leftMaster.setSensorPhase(false);
+    leftMaster.setNeutralMode(NeutralMode.Brake);
+
+    rightMaster = new WPI_TalonFX(5);
+    rightMaster.setInverted(true);
+    rightMaster.setSensorPhase(false);
+    rightMaster.setNeutralMode(NeutralMode.Brake);
+
+    WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
+    leftSlave0.setInverted(false);
+    leftSlave0.follow(leftMaster);
+    leftSlave0.setNeutralMode(NeutralMode.Brake);
+    WPI_TalonFX leftSlave1 = new WPI_TalonFX(4);
+    leftSlave1.setInverted(false);
+    leftSlave1.follow(leftMaster);
+    leftSlave1.setNeutralMode(NeutralMode.Brake);
+
+    WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
+    rightSlave0.setInverted(true);
+    rightSlave0.follow(rightMaster);
+    rightSlave0.setNeutralMode(NeutralMode.Brake);
+    WPI_TalonFX rightSlave1 = new WPI_TalonFX(7);
+    rightSlave1.setInverted(true);
+    rightSlave1.follow(rightMaster);
+    rightSlave1.setNeutralMode(NeutralMode.Brake);
+
+    //
+    // Configure gyro
+    //
+
+    // Note that the angle from the NavX and all implementors of wpilib Gyro
+    // must be negated because getAngle returns a clockwise positive angle
    
-        SmartDashboard.putNumber("kS", RobotMap.ksVolts);
-        SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
-        SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
 
-        SmartDashboard.putNumber("Max Velocity", 3.0);
-        SmartDashboard.putNumber("Max Acceleration", 3.0);
+    //
+    // Configure drivetrain movement
+    //
 
-	}
+    drive = new DifferentialDrive(leftMaster, rightMaster);
 
-	@Override
-	public void robotPeriodic() {
-		updateSmartDashboard();
-		OI.update();
+    drive.setDeadband(0);
 
-		if (OI.lZ < 0.5) {
-			drivebase.zeroEncoders();
-			navX.zeroYaw();
-			
-		}
-		
-	}
+    //
+    // Configure encoder related functions -- getDistance and getrate should
+    // return units and units/s
+    //
+
+    double encoderConstant =
+        (1 / ENCODER_EDGES_PER_REV) * WHEEL_DIAMETER * Math.PI;
+
+    leftMaster.configSelectedFeedbackSensor(
+        FeedbackDevice.IntegratedSensor,
+        PIDIDX, 10
+    );
 	
+	/*leftEncoderPosition = ()
+        -> leftMaster.getSelectedSensorPosition(PIDIDX) * encoderConstant;
+    leftEncoderRate = ()
+        -> leftMaster.getSelectedSensorVelocity(PIDIDX) * encoderConstant *
+               10;*/
 
-	@Override
-	public void autonomousInit() {
-		Robot.drivebase.zeroEncoders();
-		Robot.drivebase.reset();
+    rightMaster.configSelectedFeedbackSensor(
+        FeedbackDevice.IntegratedSensor,
+        PIDIDX, 10
+    );
+	
+	/*rightEncoderPosition = ()
+        -> rightMaster.getSelectedSensorPosition(PIDIDX) * encoderConstant;
+    rightEncoderRate = ()
+        -> rightMaster.getSelectedSensorVelocity(PIDIDX) * encoderConstant *
+               10;*/
 
-		try{
-			autoCommand = commands.getAutonomousCommand();
-		} catch (Exception e) {
-			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
-		}
+    // Reset encoders
+    leftMaster.setSelectedSensorPosition(0);
+    rightMaster.setSelectedSensorPosition(0);
 
-		autoCommand.schedule();
+    // Set the update rate instead of using flush because of a ntcore bug
+    // -> probably don't want to do this on a robot in competition
+    //NetworkTableInstance.getDefault().setUpdateRate(0.010);
+  }
 
-	}
+  @Override
+  public void disabledInit() {
+    //System.out.println("Robot disabled");
+    //drive.tankDrive(0, 0);
+  }
 
-	/**
-	 * This function is called periodically during autonomous
-	 */
-	@Override
-	public void autonomousPeriodic() {	
-		Robot.drivebase.periodic();
-		CommandScheduler.getInstance().run();
-	}
+  @Override
+  public void disabledPeriodic() {}
 
-	/**
-	 * Run once during operator control
-	 */
-	@Override
-	public void teleopInit() {
-		navX.navX.zeroYaw();
-	}
+  @Override
+  public void robotPeriodic() {
+    // feedback for users, but not used by the control program
+    /*SmartDashboard.putNumber("l_encoder_pos", leftEncoderPosition.get());
+    SmartDashboard.putNumber("l_encoder_rate", leftEncoderRate.get());
+    SmartDashboard.putNumber("r_encoder_pos", rightEncoderPosition.get());
+    SmartDashboard.putNumber("r_encoder_rate", rightEncoderRate.get());*/
+  }
 
-	/**
-	 * This function is called periodically during operator control
-	 */
-	@Override
-	public void teleopPeriodic() {
-		OI.update();
-		Robot.drivebase.periodic();
+  @Override
+  public void teleopInit() {
+    System.out.println("Robot in operator control mode");
+  }
 
-		Robot.drivebase.drive(-OI.lY, -OI.rY);
-		
-	}
+  @Override
+  public void teleopPeriodic() {
+    drive.tankDrive(-left.getY(), right.getY());
+  }
 
-	public void updateSmartDashboard() {
-		
-		//Encoder Values & NavX Yaw of all the wheels
-		SmartDashboard.putNumber("Left Front Encoder", Robot.drivebase.getLeftEncoders()[0]);
-		SmartDashboard.putNumber("Right Front Encoder", Robot.drivebase.getRightEncoders()[0]);
-		SmartDashboard.putNumber("Left Middle Encoder", Robot.drivebase.getLeftEncoders()[1]);
-		SmartDashboard.putNumber("Right Middle Encoder", Robot.drivebase.getRightEncoders()[1]);
-		SmartDashboard.putNumber("Left Back Encoder", Robot.drivebase.getLeftEncoders()[2]);
-		SmartDashboard.putNumber("Right Back Encoder", Robot.drivebase.getRightEncoders()[2]);		
-		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
+  @Override
+  public void autonomousInit() {
+    //System.out.println("Robot in autonomous mode");
+  }
 
-		//Pose, Velocity, Distance Information
-		SmartDashboard.putNumber("Pose X", Robot.drivebase.getPoseX());
-		SmartDashboard.putNumber("Pose Y", Robot.drivebase.getPoseY());
-		SmartDashboard.putNumber("Left Wheel Speed", Robot.drivebase.getLeftVelocity());
-		SmartDashboard.putNumber("Right Wheel Speed", Robot.drivebase.getLeftVelocity());
-		SmartDashboard.putNumber("Left Distance", Robot.drivebase.getLeftDistanceMeters());
-		SmartDashboard.putNumber("Right Distance", Robot.drivebase.getRightDistanceMeters());
-		SmartDashboard.putNumber("Left Feet Distance", Units.metersToFeet(Robot.drivebase.getLeftDistanceMeters()));
-		SmartDashboard.putNumber("Right Feet Distance", Units.metersToFeet(Robot.drivebase.getRightDistanceMeters()));
+  /**
+   * If you wish to just use your own robot program to use with the data logging
+   * program, you only need to copy/paste the logic below into your code and
+   * ensure it gets called periodically in autonomous mode
+   *
+   * Additionally, you need to set NetworkTables update rate to 10ms using the
+   * setUpdateRate call.
+   */
+  @Override
+  public void autonomousPeriodic() {
 
-		//Joystick Values
-		SmartDashboard.putNumber("Left Joystick", OI.lY);
-		SmartDashboard.putNumber("Right Joystick", OI.rY);
-	}
+	/*
+    // Retrieve values to send back before telling the motors to do something
+    double now = Timer.getFPGATimestamp();
+
+    double leftPosition = leftEncoderPosition.get();
+    double leftRate = leftEncoderRate.get();
+
+    double rightPosition = rightEncoderPosition.get();
+    double rightRate = rightEncoderRate.get();
+
+    double battery = RobotController.getBatteryVoltage();
+
+    double leftMotorVolts = leftMaster.getMotorOutputVoltage();
+    double rightMotorVolts = rightMaster.getMotorOutputVoltage();
+
+    // Retrieve the commanded speed from NetworkTables
+    double autospeed = autoSpeedEntry.getDouble(0);
+    priorAutospeed = autospeed;
+
+    // command motors to do things
+    drive.tankDrive(
+      (rotateEntry.getBoolean(false) ? -1 : 1) * autospeed, autospeed,
+      false
+    );
+
+    // send telemetry data array back to NT
+    numberArray[0] = now;
+    numberArray[1] = battery;
+    numberArray[2] = autospeed;
+    numberArray[3] = leftMotorVolts;
+    numberArray[4] = rightMotorVolts;
+    numberArray[5] = leftPosition;
+    numberArray[6] = rightPosition;
+    numberArray[7] = leftRate;
+    numberArray[8] = rightRate;
+    numberArray[9] = gyroAngleRadians.get();
+
+    telemetryEntry.setNumberArray(numberArray);*/
+  }
 }

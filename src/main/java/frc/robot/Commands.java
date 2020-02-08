@@ -38,10 +38,10 @@ public class Commands {
 
     public Command getAutonomousCommand() throws Exception {
 
-        double lP = SmartDashboard.getNumber("lP value", 1.0);
+        double lP = SmartDashboard.getNumber("lP value", 7.77);
         double lI = SmartDashboard.getNumber("lI value", 0.0);
         double lD = SmartDashboard.getNumber("lD value", 0.0);
-        double rP = SmartDashboard.getNumber("rP value", 1.0);
+        double rP = SmartDashboard.getNumber("rP value", 7.77);
         double rI = SmartDashboard.getNumber("rI value", 0.0);
         double rD = SmartDashboard.getNumber("rD value", 0.0);
 
@@ -70,11 +70,12 @@ public class Commands {
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(0,0,Rotation2d.fromDegrees(0)),
-                new Pose2d(4,2,Rotation2d.fromDegrees(-90))
+                new Pose2d(3,0,Rotation2d.fromDegrees(0))
             ),
             config
         );
         
+        /*
         RamseteCommand ramseteCommand = new RamseteCommand(
             trajectory,
             m_robotDrive::getPose,
@@ -86,10 +87,11 @@ public class Commands {
             new PIDController(rP, rI, rD),
             m_robotDrive::setOutputVolts,
             m_robotDrive
-        );
+        );*/
 
 
-        return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));
+        //return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));
+        return null;
     } 
 
 }

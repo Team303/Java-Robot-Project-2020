@@ -13,16 +13,15 @@ import edu.wpi.first.wpilibj.I2C;
 
 public class ColorSensor{
     private final ColorSensorV3 colorSensor;
-    enum Color
-    {
+    enum Color {
         RED, GREEN, BLUE, YELLOW, NONE
     }
     public ColorSensor(){
         colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+         
     }
 
     public RawColor getRawColor(){
-        //return a Raw Color object, which has int attributes for red, green, blue, and infrared
         return colorSensor.getRawColor();
     }
 
@@ -30,7 +29,6 @@ public class ColorSensor{
     {
         RawColor color = getRawColor();
     
-        //These constants decide what is considered "full enough" or "empty enough" for a given value, since RGB values are 0 or 250
         final int FULL = 250;
         final int EMPTY = 5;
 

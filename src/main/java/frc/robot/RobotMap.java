@@ -29,9 +29,9 @@ public class RobotMap {
 	public static final boolean FRONT_LEFT_INV = false;
 	public static final boolean MIDDLE_LEFT_INV = false;
 	public static final boolean BACK_LEFT_INV = false;
-	public static final boolean FRONT_RIGHT_INV = false;
-	public static final boolean MIDDLE_RIGHT_INV = false;
-	public static final boolean BACK_RIGHT_INV = false;
+	public static final boolean FRONT_RIGHT_INV = true;
+	public static final boolean MIDDLE_RIGHT_INV = true;
+	public static final boolean BACK_RIGHT_INV = true;
 
 	public static final int INDEXER = -1;
 	public static final int INTAKE = -1;
@@ -45,10 +45,11 @@ public class RobotMap {
 
 
 	//From Robot Characterization 
-	public static final double ksVolts = 0.843; 					
-	public static final double kvVoltSecondsPerMeter = 0.915;	
-	public static final double kaVoltSecondsSquaredPerMeter = 0.1; // characterization - 0.252
-	
+	public static final double ksVolts = 0.126; 					
+	public static final double kvVoltSecondsPerMeter = 2.26;	
+	public static final double kaVoltSecondsSquaredPerMeter = 0.191; 
+
+
 	public static final double kTrackWidthMeters = Units.inchesToMeters(23.75);
 	public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
 

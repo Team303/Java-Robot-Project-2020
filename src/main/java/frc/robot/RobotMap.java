@@ -17,9 +17,10 @@ public class RobotMap {
 	public static final int PDP = 0;
 	
 
-	public static final int FRONT_LEFT = 2; //encoder on this talon
-	public static final int MIDDLE_LEFT = 3; //encoder on this talon
-	public static final int BACK_LEFT = 4; //encoder on this talon
+	public static final int FRONT_LEFT = 2; 
+	public static final int MIDDLE_LEFT = 3; 
+	public static final int BACK_LEFT = 4; 
+
 	public static final int FRONT_RIGHT = 5; 
 	public static final int MIDDLE_RIGHT = 6; 
 	public static final int BACK_RIGHT = 7;
@@ -39,19 +40,17 @@ public class RobotMap {
 	public static final int SHOOTER_SLAVE = -1;
 
 
-	// FROM ROBOT CHARACTERIZATION \\
+	//From Robot Characterization 
 	public static final double ksVolts = 0.843; 					
 	public static final double kvVoltSecondsPerMeter = 0.915;	
 	public static final double kaVoltSecondsSquaredPerMeter = 0.1; // characterization - 0.252
 	
-	public static final double kTrackWidthMeters = 0.7874;
-	public static final DifferentialDriveKinematics kDriveKinematics = 
-		new DifferentialDriveKinematics(kTrackWidthMeters);
+	public static final double kTrackWidthMeters = 0.602996;
+	public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
 
 	public static final int kEncoderCPR = 2350;
-	public static final double kWheelDiameterMeters = 0.1016;
-	public static final double kEncoderConstant =
-		(kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+	public static final double kWheelDiameterMeters = 6.125;
+	public static final double kEncoderConstant = (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
 
 }

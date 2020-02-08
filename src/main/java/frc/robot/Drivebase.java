@@ -24,23 +24,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Talon;
 
 public class Drivebase extends SubsystemBase {
-
-
-
+	
 	public WPI_TalonFX rightBack;
 	public WPI_TalonFX rightMiddle;
 	public WPI_TalonFX rightFront;
 	public WPI_TalonFX leftFront;
 	public WPI_TalonFX leftMiddle;
 	public WPI_TalonFX leftBack;
-	
-	/*
-	Talon rightFront;
-	Talon rightMiddle;
-	Talon rightBack;
-	Talon leftFront;
-	Talon leftMiddle;
-	Talon leftBack;*/
 
 	SpeedControllerGroup rightMotors;
 	SpeedControllerGroup leftMotors;
@@ -55,9 +45,9 @@ public class Drivebase extends SubsystemBase {
 		rightFront = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
 		leftBack = new WPI_TalonFX(RobotMap.BACK_LEFT);
 		leftMiddle = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
-		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);
+		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);	
 		
-		/*
+		//Reset to factory default settings
 		rightBack.configFactoryDefault();
 		rightMiddle.configFactoryDefault();
 		rightFront.configFactoryDefault();
@@ -65,16 +55,14 @@ public class Drivebase extends SubsystemBase {
 		leftMiddle.configFactoryDefault();
 		leftFront.configFactoryDefault();
 
-		rightBack.setNeutralMode(NeutralMode.Brake);
-		rightMiddle.setNeutralMode(NeutralMode.Brake);
-		rightFront.setNeutralMode(NeutralMode.Brake);
-		leftBack.setNeutralMode(NeutralMode.Brake);
-		leftMiddle.setNeutralMode(NeutralMode.Brake);
-		leftFront.setNeutralMode(NeutralMode.Brake);
-
-		*/
-
-		
+		//Reset to coast mode
+		rightBack.setNeutralMode(NeutralMode.Coast);
+		rightMiddle.setNeutralMode(NeutralMode.Coast);
+		rightFront.setNeutralMode(NeutralMode.Coast);
+		leftBack.setNeutralMode(NeutralMode.Coast);
+		leftMiddle.setNeutralMode(NeutralMode.Coast);
+		leftFront.setNeutralMode(NeutralMode.Coast);
+				
 		rightMotors = new SpeedControllerGroup(rightBack, rightFront, rightMiddle);
 		leftMotors = new SpeedControllerGroup(leftFront, leftMiddle, leftBack);
 		drive = new DifferentialDrive(leftMotors, rightMotors);
@@ -86,95 +74,77 @@ public class Drivebase extends SubsystemBase {
 		leftMiddle.setInverted(RobotMap.MIDDLE_LEFT_INV);
 		leftFront.setInverted(RobotMap.FRONT_LEFT_INV);
 
-		/* leftBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
+		 leftBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
 		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
 		leftMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
 		rightBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
 		rightMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
-		rightFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000); */
+		rightFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000); 
 	}
 	
 	public void drive(double left, double right) {
-		/* rightBack.set(ControlMode.PercentOutput, right);
-		rightMiddle.set(ControlMode.PercentOutput, right);
-		rightFront.set(ControlMode.PercentOutput, right);
-		leftFront.set(ControlMode.PercentOutput, left);
-		leftMiddle.set(ControlMode.PercentOutput, left);
-		leftBack.set(ControlMode.PercentOutput, left); */
 		drive.tankDrive(left, right);
 
 	}
 
-	/*
 	public void setOutputVolts(double left, double right) {
-		leftMotors.setVoltage(-left * SmartDashboard.getNumber("Constant", 0.8));
-		rightMotors.setVoltage(right *  SmartDashboard.getNumber("Constant", 0.8));
+
+		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
+
+		leftMotors.setVoltage(-left * multiplier);
+		rightMotors.setVoltage(right *  multiplier);
 	}
-	*/
 
-
-	
-	public int[] getLeftEncoder() {
+	public int[] getLeftEncoders() {
 		return new int[] { leftFront.getSelectedSensorPosition(0),
 			leftMiddle.getSelectedSensorPosition(0),
 			leftBack.getSelectedSensorPosition(0)};
 	}
 
-	public int[] getRightEncoder() {
+	public int[] getRightEncoders() {
 		return new int[] { rightFront.getSelectedSensorPosition(0),
 			rightMiddle.getSelectedSensorPosition(0),
 			rightBack.getSelectedSensorPosition(0)};	
 	}
 
-	public void zeroEncoder() {
+	public void zeroEncoders() {
 		leftFront.setSelectedSensorPosition(0, 0, 1000);
 		leftMiddle.setSelectedSensorPosition(0, 0, 1000);
 		leftBack.setSelectedSensorPosition(0, 0, 1000);
 		
 		rightFront.setSelectedSensorPosition(0, 0, 1000);
-
-
 		rightMiddle.setSelectedSensorPosition(0, 0, 1000);
 		rightBack.setSelectedSensorPosition(0, 0, 1000);
 	}
 
-	//--------------- POSE METHODS---------------------
-/*
+	//--------------- UPDATE POSE METHODS---------------------
+
 	public void periodic() {
-		pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftMeters(), getRightMeters());
+		pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftDistanceMeters(), getRightDistanceMeters());
 	}
-	
+
+	public void reset() {
+		odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(-Robot.navX.getYaw()));
+	}
 
 	public DifferentialDriveWheelSpeeds getWheelSpeeds() {
 		return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
 	}
 
-	public void reset() {
-		odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(Robot.navX.getYaw()));
-	}
+
+	//--------------- POSE HELPER METHODS---------------------
+
 
 	public Pose2d getPose(){
 		return odometry.getPoseMeters();
 	}
 
-	public double getPoseX() {
-		return pose.getTranslation().getX();
-		
-	}
-
-	public double getPoseY(){
-		return pose.getTranslation().getY();
-	}
-
-	//------------------HELPER METHODS------------------------------
-
-
-	public double getLeftMeters() {
+	public double getLeftDistanceMeters() {
 		return leftFront.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
 	}
 
-	public double getRightMeters() {
-		return -rightBack.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
+	public double getRightDistanceMeters() {
+		return -rightFront.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
 	}
 
 	public double getLeftVelocity() {
@@ -182,9 +152,29 @@ public class Drivebase extends SubsystemBase {
 	}
 
 	public double getRightVelocity() {
-		return -rightBack.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
+		return -rightFront.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
 	}
 	
-*/
+	public double getPoseX() {
+		return pose.getTranslation().getX();	
+	}
+	
+	public double getPoseY(){
+		return pose.getTranslation().getY();
+	}
+
+
+	/* rightBack.set(ControlMode.PercentOutput, right);
+		rightMiddle.set(ControlMode.PercentOutput, right);
+		rightFront.set(ControlMode.PercentOutput, right);
+		leftFront.set(ControlMode.PercentOutput, left);
+		leftMiddle.set(ControlMode.PercentOutput, left);
+		leftBack.set(ControlMode.PercentOutput, left); */
+
+
+	
+	
+	
+
 
 }

@@ -32,23 +32,25 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class Robot extends TimedRobot {	
 
-	static Timer timer = new Timer();
-	//static NavX navX;
+	static NavX navX;
 	public static Drivebase drivebase;
+	public static Commands commands;
+	public static Command autoCommand;
 	//public static Intake intake;
 	
 
 	@Override
 	public void robotInit() {
 		
-		timer.start();
 		drivebase = new Drivebase();
+		Robot.drivebase.zeroEncoders();	
 		
-		//navX = new NavX();
-		//navX.navX.zeroYaw();
-		//intake = new Intake();
-		//Robot.drivebase.zeroEncoder();
-
+		navX = new NavX();
+		navX.navX.zeroYaw();
+		
+		
+		commands = new Commands();
+	
 	}
 
 	@Override
@@ -56,18 +58,27 @@ public class Robot extends TimedRobot {
 		updateSmartDashboard();
 		OI.update();
 
-		/*if (OI.lBtn[2]) {
-			navX.navX.zeroYaw();
-		}*/
+		if (OI.lZ < 0.5) {
+			drivebase.zeroEncoders();
+			navX.zeroYaw();
+			
+		}
 		
 	}
 	
 
 	@Override
 	public void autonomousInit() {
+		Robot.drivebase.zeroEncoders();
+		Robot.drivebase.reset();
 
-		//Robot.drivebase.zeroEncoder();
-		//Robot.drivebase.reset();
+		try{
+			autoCommand = commands.getAutonomousCommand();
+		} catch (Exception e) {
+			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
+		}
+
+		autoCommand.schedule();
 
 	}
 
@@ -76,8 +87,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {	
-		//Robot.drivebase.periodic();
-		
+		Robot.drivebase.periodic();
+		CommandScheduler.getInstance().run();
 	}
 
 	/**
@@ -85,8 +96,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopInit() {
-		//navX.navX.zeroYaw();
-		//timer.reset();
+		navX.navX.zeroYaw();
 	}
 
 	/**
@@ -95,34 +105,35 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		OI.update();
-		//Robot.drivebase.periodic();
+		Robot.drivebase.periodic();
+
+		Robot.drivebase.drive(-OI.lY, -OI.rY);
 		
-		if (OI.lBtn[2]) {
-			//navX.navX.zeroYaw();
-		} else if (OI.lBtn[3]) {
-			Robot.drivebase.zeroEncoder();
-		} else {
-			Robot.drivebase.drive(-OI.lY, -OI.rY);
-		}
 	}
 
-
 	public void updateSmartDashboard() {
-		SmartDashboard.putNumber("Left Front Encoder", Robot.drivebase.getLeftEncoder()[0]);
-		SmartDashboard.putNumber("Right Front Encoder", Robot.drivebase.getRightEncoder()[0]);
-		SmartDashboard.putNumber("Left Middle Encoder", Robot.drivebase.getLeftEncoder()[1]);
-		SmartDashboard.putNumber("Right Middle Encoder", Robot.drivebase.getRightEncoder()[1]);
-		SmartDashboard.putNumber("Left Back Encoder", Robot.drivebase.getLeftEncoder()[2]);
-		SmartDashboard.putNumber("Right Back Encoder", Robot.drivebase.getRightEncoder()[2]);
-		//SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
 		
-		SmartDashboard.putNumber("Left Power", Robot.drivebase.leftFront.get());
-		SmartDashboard.putNumber("Right Power", Robot.drivebase.rightFront.get());
+		//Encoder Values & NavX Yaw of all the wheels
+		SmartDashboard.putNumber("Left Front Encoder", Robot.drivebase.getLeftEncoders()[0]);
+		SmartDashboard.putNumber("Right Front Encoder", Robot.drivebase.getRightEncoders()[0]);
+		SmartDashboard.putNumber("Left Middle Encoder", Robot.drivebase.getLeftEncoders()[1]);
+		SmartDashboard.putNumber("Right Middle Encoder", Robot.drivebase.getRightEncoders()[1]);
+		SmartDashboard.putNumber("Left Back Encoder", Robot.drivebase.getLeftEncoders()[2]);
+		SmartDashboard.putNumber("Right Back Encoder", Robot.drivebase.getRightEncoders()[2]);		
+		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
 
+		//Pose, Velocity, Distance Information
+		SmartDashboard.putNumber("Pose X", Robot.drivebase.getPoseX());
+		SmartDashboard.putNumber("Pose Y", Robot.drivebase.getPoseY());
+		SmartDashboard.putNumber("Left Wheel Speed", Robot.drivebase.getLeftVelocity());
+		SmartDashboard.putNumber("Right Wheel Speed", Robot.drivebase.getLeftVelocity());
+		SmartDashboard.putNumber("Left Distance", Robot.drivebase.getLeftDistanceMeters());
+		SmartDashboard.putNumber("Right Distance", Robot.drivebase.getRightDistanceMeters());
+		SmartDashboard.putNumber("Left Feet Distance", Units.metersToFeet(Robot.drivebase.getLeftDistanceMeters()));
+		SmartDashboard.putNumber("Right Feet Distance", Units.metersToFeet(Robot.drivebase.getRightDistanceMeters()));
 
+		//Joystick Values
 		SmartDashboard.putNumber("Left Joystick", OI.lY);
 		SmartDashboard.putNumber("Right Joystick", OI.rY);
-
-
 	}
 }

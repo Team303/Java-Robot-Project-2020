@@ -13,47 +13,48 @@ import frc.robot.Robot;
 /**
  * Add your docs here.
  */
+public class ActionConveyorBelt implements Action {
 
- //implement means that it need to use the methods that are in the Action class
-public class ActionIntake implements Action {
-
-    // make the varibles
-    double timeout;
+    //makes a variable for timer and how long we want our code to run
     Timer timer = new Timer();
 
-    //construtor setting the amout of time the action will run and stating timer
-    public ActionIntake(double timeout){
-        
-        this.timeout = timeout;
+    double timeout;
 
-        timer.start();
-
-        
-    }
-
-    @Override
-    //running the intake method
-    public void run() {
-       
-        Robot.intake.runIntake();
-
-    }
-
-    @Override
+    //sets how long we want our code to run and starts the timer
+    public ActionConveyorBelt(double timeout){
     
-    public boolean isFinished() {
-
-            //checking if the action has been runing for the designated amount of time
-           boolean end = timer.get() >= timeout;
+    this.timeout = timeout;
+       
+    timer.start();
         
-           //stoping Action class
-           if(end){
+         
+       
+    }
+
+    @Override
+    public void run() {
+        //sets the conveyorbelt to move at a curten speed (0.6)
+        Robot.intake.moveConveyor();
+
+    }
+/***
+
+    @Override
+    /**
+     * Tests to see if the conveyor belt is finished moving by comparing to the time run
+     */ 
+    public boolean isFinished() {
+        // checks if the timer has ran past our timeout 
+        boolean end = timer.get() >= timeout;
+
+        // resets our setpoint and timer
+        if(end){
+            Robot.intake.stopConveyor();
 
             timer.stop();
             timer.reset();
         }
-           
-        
-        return end;
+
+        return end; 
     }
 }

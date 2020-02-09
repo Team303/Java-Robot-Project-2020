@@ -36,8 +36,10 @@ public class Intake {
     // takes all the metods and puts them in one for easy use
     public  void intakeControl() {
         
-        runIntakeMotor();
-        conveyorControl();
+        if(OI.xRightTrigger > 0.7){
+        runIntake();
+        }
+       
 
     }
 
@@ -49,22 +51,31 @@ public class Intake {
 
     }
 
+    //set the conveyor speed to 0.6
+    public void moveConveyor(){
+        conveyorBeltMotor.set(0.6);
+    }
+    // sets the conveyor speed to 0.0
+    public void stopConveyor(){
+        conveyorBeltMotor.set(0.0);
+    }
+
+
     //using the checkForMotion method and if there is an object moving the conveyorbelt.
     public void conveyorControl() {
-
         if(checkForObject()){
-            conveyorBeltMotor.set(0.6);
+            moveConveyor();
         }
         else {
-            conveyorBeltMotor.set(0.0);
+            stopConveyor();
         }
-
     }    
+    
 
-    // runs the intake motor
-    public void runIntakeMotor() {
+    // runs the intake motor while checking for objects at same time
+    public void runIntake() {
         intakeMotor.set(0.25);
-
+        conveyorControl();
     }
 
 }

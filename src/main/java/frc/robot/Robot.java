@@ -30,13 +30,17 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
-public class Robot extends TimedRobot {	
+public class Robot extends TimedRobot {
 	//static AutoStates autoSelected;
 //	SendableChooser<AutoStates> chooser = new SendableChooser<>();
 	//static Drivebase driveSubsystem;
+	public static enum Position {LEFT, PP, RIGHT};
+    public static enum Auto {DO_NOTHING, Just_Shoot, Shoot_Trench, Trench_Shoot, PreLoad2_Shoot, DrivePP_Shoot, DriveMid_Shoot};
+
+	
 	static Timer timer = new Timer();
-	//static Autonomous auto;
-	static NavX navX;
+	static Autonomous auto;
+	public static NavX navX;
 	private static double width;
 	private static double centerX;
 	private static double area;
@@ -46,18 +50,35 @@ public class Robot extends TimedRobot {
 	public static Drivebase drivebase;
 	public static Command autoCommand;
 	public static Intake intake;
-	
+	public static Shooter shooter;
+
+	private SendableChooser<Position> positionChooser = new SendableChooser<>();
+	private SendableChooser<Auto> autoChooser = new SendableChooser<>();
+
 
 	@Override
 	public void robotInit() {
-		
+
 		timer.start();
 		drivebase = new Drivebase();
-		
+		shooter = new Shooter();
+		auto = new Autonomous();
 		navX = new NavX();
 		navX.navX.zeroYaw();
 		intake = new Intake();
 		Robot.drivebase.zeroEncoder();
+
+		
+		positionChooser.addOption("Left", Position.LEFT);
+		positionChooser.addOption("Right", Position.RIGHT);
+		positionChooser.addOption("PP", Position.PP);
+	
+		for (Auto auto: Auto.values()) {
+		  autoChooser.addOption(auto.toString(), auto);
+		}
+	
+		SmartDashboard.putData("Position", positionChooser);
+		SmartDashboard.putData("Auto", autoChooser);
 
 
 
@@ -71,25 +92,52 @@ public class Robot extends TimedRobot {
 		if (OI.lBtn[2]) {
 			navX.navX.zeroYaw();
 		}
-		
+
 	}
-	
+
 
 	@Override
 	public void autonomousInit() {
 
 		Robot.drivebase.zeroEncoder();
 		Robot.drivebase.reset();
+		
+		Position position = positionChooser.getSelected();
+		
+		if(position == Position.LEFT){
+			
+		}
+		else if( position  == Position.RIGHT){
+			
+		}
+		else if(position== Position.PP){
+		
+		}		
 
+
+	}
+
+	public void assembleRightAutos(){
+			
+	}
+
+	public void assembleLeftAutos(){
+		auto.assembleLR_justShoot();
+		auto.assembleLR_drivePPShoot();
+		auto.assembleLR_midDriveShoot();
+	}
+
+	public void assemblePPAutos(){
+		
 	}
 
 	/**
 	 * This function is called periodically during autonomous
 	 */
 	@Override
-	public void autonomousPeriodic() {	
+	public void autonomousPeriodic() {
 		//Robot.drivebase.periodic();
-		
+
 	}
 
 	/**
@@ -108,7 +156,7 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		OI.update();
 		Robot.drivebase.periodic();
-		
+
 
 
 		if (OI.lBtn[2]) {
@@ -119,9 +167,10 @@ public class Robot extends TimedRobot {
 			Robot.drivebase.drive(OI.lY, OI.rY);
 		}
 
-		if(OI.xRightTrigger > 0.7){
-			intake.intakeControl();
-		}		
+
+		intake.intakeControl();
+		shooter.control();
+
 
 	}
 
@@ -130,9 +179,12 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
 		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
 		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
-		
+
 		SmartDashboard.putNumber("Left Power", Robot.drivebase.leftFront.get());
 		SmartDashboard.putNumber("Right Power", Robot.drivebase.rightFront.get());
+
+		SmartDashboard.putNumber("Shooter Velocity", Robot.shooter.getVelocity());
+
 
 
 	}

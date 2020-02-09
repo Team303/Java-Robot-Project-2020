@@ -8,76 +8,98 @@ package frc.robot;
 
 
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.ControlType;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Shooter{
+public class Shooter {
+	// instance variables
 
 	 CANSparkMax shooter;
-	 CANSparkMax shooterSlave;
-	 double savedSetpoint;
-	 int count = 0;
+	 CANEncoder encoder;
+	 CANPIDController shooterPIDController;
+	
+	
+	 double setPoint;
 	
 	 static final double maxFeedError = 0.15; //.15
 	
+	 /**
+	  * Constructor establishes the necessary shooting instructions.
+	  */
 	 public Shooter() {
-	 	shooter = new CANSparkMax(RobotMap.SHOOTER, CANSparkMaxLowLevel.MotorType.kBrushless);
-		shooterSlave = new CANSparkMax(RobotMap.SHOOTER_SLAVE, CANSparkMaxLowLevel.MotorType.kBrushless);
+		shooter = new CANSparkMax(RobotMap.SHOOTER, CANSparkMaxLowLevel.MotorType.kBrushless);
 
-		/*
-		 //shooter.set(ControlMode.PercentOutput, 9.);
-        setPIDF(shooter, .3, 0.000003, 1, 0.02475);
-		//shooter.setSafetyEnabled(true);
-		shooter.getInverted();
+		encoder = new CANEncoder(shooter);
+
+		shooterPIDController = new CANPIDController(shooter);
+		setPIDF(0.3, 0.000003, 1, 0.02475); //  
+		//use only if needed
+		//shooter.getInverted();
 		shooter.set(0);
-		t = new Timer();*/
+	
 	}
 	
+	/**
+	 * Runs continually to regulate the behavior of the shooter.
+	 */
 	public void control() {
 		
-		/*double setpoint;
 		
-		
+	
 		if(OI.xBtnY) { //set setpoint
-			setpoint = 0;
-			//shooter.disable();
-			//shooterSlave.disable();
+			setPoint = 0;
+			
 		} else if(OI.xBtnX) {
-			//shooter.enable();
-			//shooterSlave.enable();
-			setpoint =20250; // was -26150
-		} else {
-			setpoint = savedSetpoint;
+			
+			setPoint = 20250; // was -26150
 		}
+		//getVelocity(setpoint);
 		
-		setSetpoint(setpoint);
 		
-		if(setpoint!=0 && (getSpeed()<=(setpoint*(1+maxFeedError)) && getSpeed()>=(setpoint*(1-maxFeedError)))) { //feed fuel if shooter is close to setpoint
-		savedSetpoint = setpoint;*/
+		shooterPIDController.setReference (setPoint, ControlType.kVelocity);	
 	}
 	
-	public void setSetpoint(double setpoint) {
-		//shooter.set(setpoint);
+	/**
+	 * Sets the setpoint of the shooter.
+	 */
+	public void setSetPoint(double target){
+		setPoint = target;
 	}
+
+		/**
+		 * Returns the velocity of the encoder.
+		 */
+	public double getVelocity() {
+		return encoder.getVelocity() * RobotMap.kEncoderConstant * 10;
+	}
+		
+
 	
-	public double getSpeed() {
-		//return shooter.getSelectedSensorVelocity();
-		return 0; //Silences the compiler
+	
+	
+	/*public double getSpeed() {
+		return shooter.get();
 	}
 	
 	/*public void resetI() {
 		shooter.clearIAccum();
 	}*/
 	
-	public void setPIDF(WPI_TalonSRX motor, double P, double I, double D, double F) {
-		motor.config_kP(0 , P);
-		motor.config_kI(0 , I);
-		motor.config_kD(0 , D);
-		motor.config_kF(0 , F);
+	/**
+	 * Sets the PID values for the robot encoder.
+	 */
+	public void setPIDF( double P, double I, double D, double F) {
+		shooterPIDController.setP(P);
+		shooterPIDController.setI(I);
+		shooterPIDController.setD(D);
+		shooterPIDController.setFF(F);
 	}
 	
 }

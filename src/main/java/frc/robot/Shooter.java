@@ -58,7 +58,6 @@ public class Shooter{
 		shooterPID.setP(kP);
 		shooterPID.setI(kI);
 		shooterPID.setD(kD);
-		//shooterPID.setIZone(kIz);
 		shooterPID.setFF(kFF);
 		shooterPID.setOutputRange(kMinOutput, kMaxOutput);
 
@@ -67,7 +66,23 @@ public class Shooter{
 	}
 	
 	public void control() {
+
+		if (OI.lBtn[5]) {
+			setpoint = getSetpointFromDistance();
+		} else if (OI.xBtnA){
+			setpoint = 0;
+		}
+
 		shooterPID.setReference(setpoint, ControlType.kVelocity);
+
+		double velocityThreshold  = 10000;
+		
+		if (shooterEncoder.getVelocity() >= velocityThreshold) {
+			OldRobot.intake.setIndexer(0.3);
+		} else {
+			OldRobot.intake.setIndexer(0);
+		}
+
 	}
 	
 	public void setSetpoint(double set) {
@@ -76,6 +91,12 @@ public class Shooter{
 	
 	public double getSpeed() {
 		return shooterEncoder.getVelocity();
+	}
+
+	public double getSetpointFromDistance() {
+		double intercept = 0;
+		double slope = 0;
+		return intercept + (slope * OldRobot.limelight.get2DDistance());
 	}
 	
 	/*public void resetI() {

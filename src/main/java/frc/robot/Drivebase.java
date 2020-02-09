@@ -78,9 +78,6 @@ public class Drivebase extends SubsystemBase {
 			PIDIDX, 10
 		);
 		
-		
-		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0, 10);
-
 		leftMaster.setSelectedSensorPosition(0);
 		rightMaster.setSelectedSensorPosition(0);
 
@@ -89,28 +86,20 @@ public class Drivebase extends SubsystemBase {
 	
 	public void drive(double left, double right) {
 		drive.tankDrive(left, right);
-
-		/*rightBack.set(ControlMode.PercentOutput, right);
-		rightMiddle.set(ControlMode.PercentOutput, right);
-		rightFront.set(ControlMode.PercentOutput, right);
-		leftFront.set(ControlMode.PercentOutput, left);
-		leftMiddle.set(ControlMode.PercentOutput, left);
-		leftBack.set(ControlMode.PercentOutput, left);*/
 	}
 
-	/*public void setOutputVolts(double left, double right) {
-
+	public void setOutputVolts(double left, double right) {
 		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
-
 		leftMaster.setVoltage(left * multiplier);
 		rightMaster.setVoltage(-right *  multiplier);
-	}*/
+	}
 
-	public int getLeftEncoders() {
+
+	public int getLeftEncoder() {
 		return leftMaster.getSelectedSensorPosition(0);
 	}
 
-	public int getRightEncoders() {
+	public int getRightEncoder() {
 		return rightMaster.getSelectedSensorPosition(0);
 	
 	}
@@ -119,6 +108,55 @@ public class Drivebase extends SubsystemBase {
 		leftMaster.setSelectedSensorPosition(0, 0, 1000);
 		rightMaster.setSelectedSensorPosition(0, 0, 1000);
 
+	}
+
+	//-------------- TURN TO ANGLE ---------------------------
+	public double turnToAngle(double current, double intended, double tolerance) {
+		double slope45 = 0.0105;
+		double intercept45 = 0;
+		double slope90 = 0;
+		double intercept90 = 0;
+		double slope180 = 0;
+		double intercept180 = 0;
+
+		double distanceError = distanceBetweenAngles(current, intended);
+		double power = 0;
+
+		if (Math.abs(distanceError) <= 45) {
+			power = intercept45 + (slope45 * distanceError);
+		} else if (Math.abs(distanceError) <= 90) {
+			power = intercept90 + (slope90 * distanceError);
+		} else if (Math.abs(distanceError) <= 180) {
+			power = intercept180 + (slope180 * distanceError);
+		}
+
+		if (Math.abs(distanceError) <= tolerance) {
+			power = 0;
+		}
+
+		drive(Math.copySign(power, distanceError), -Math.copySign(power, distanceError));
+
+		return distanceError;
+
+	}
+
+	public static double distanceBetweenAngles(double current, double intended) {
+
+		double currentAct = (current >= 0) ? current: 360 - Math.abs(current);
+		double intendedAct = (intended >= 0) ? intended: 360 - Math.abs(intended);	
+
+		double rightDistance = 0;
+
+		if (intendedAct >= currentAct) {	
+			rightDistance = intendedAct - currentAct;
+		} else {
+			rightDistance = Math.abs(current) + Math.abs(intendedAct);
+		}
+		
+		double leftDistance = Math.abs(360 - rightDistance);
+		
+		return (leftDistance <= rightDistance) ? -leftDistance : rightDistance;
+		
 	}
 
 	//--------------- UPDATE POSE METHODS---------------------
@@ -168,6 +206,12 @@ public class Drivebase extends SubsystemBase {
 	}
 	
 
+		/*rightBack.set(ControlMode.PercentOutput, right);
+		rightMiddle.set(ControlMode.PercentOutput, right);
+		rightFront.set(ControlMode.PercentOutput, right);
+		leftFront.set(ControlMode.PercentOutput, left);
+		leftMiddle.set(ControlMode.PercentOutput, left);
+		leftBack.set(ControlMode.PercentOutput, left);*/
 	
 	
 	

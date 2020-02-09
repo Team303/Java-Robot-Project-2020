@@ -28,10 +28,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class OldRobot extends TimedRobot {	
 
-	static NavX navX;
+	public static NavX navX;
 	public static Drivebase drivebase;
 	public static Commands commands;
 	public static Command autoCommand;
+	public static Limelight limelight;
+	public static Camera camera;
+	public static Intake intake;
 	//public static Intake intake;
 	
 
@@ -43,6 +46,7 @@ public class OldRobot extends TimedRobot {
 		
 		navX = new NavX();
 		navX.navX.zeroYaw();
+		intake = new Intake();
 		
 		commands = new Commands();
 
@@ -125,10 +129,8 @@ public class OldRobot extends TimedRobot {
 	public void updateSmartDashboard() {
 		/*
 		//Encoder Values & NavX Yaw of all the wheels
-		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoders());
-	
-		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoders());
-
+		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
+		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
 		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
 
 		//Pose, Velocity, Distance Information

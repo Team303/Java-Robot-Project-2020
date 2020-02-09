@@ -25,99 +25,60 @@ import edu.wpi.first.wpilibj.Talon;
 
 public class Drivebase extends SubsystemBase {
 	
-	/*public WPI_TalonFX rightBack;
-	public WPI_TalonFX rightMiddle;
-	public WPI_TalonFX rightFront;
-	public WPI_TalonFX leftFront;
-	public WPI_TalonFX leftMiddle;
-	*/
 	WPI_TalonFX leftMaster;
 	WPI_TalonFX rightMaster;
-
-	//SpeedControllerGroup rightMotors;
-	//SpeedControllerGroup leftMotors;
 	DifferentialDrive drive;
+
+	static private int PIDIDX = 0;
+
 
 	DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0));
 	Pose2d pose = new Pose2d();
 
 	public Drivebase()  {
-		/*rightBack = new WPI_TalonFX(RobotMap.BACK_RIGHT);
-		rightMiddle = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
-		rightFront = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
-		leftBack = new WPI_TalonFX(RobotMap.BACK_LEFT);
-		leftMiddle = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
-		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);	
 		
-		//Reset to factory default settings
-		rightBack.configFactoryDefault();
-		rightMiddle.configFactoryDefault();
-		rightFront.configFactoryDefault();
-		leftBack.configFactoryDefault();
-		leftMiddle.configFactoryDefault();
-		leftFront.configFactoryDefault();
-
-		//Reset to coast mode
-		rightBack.setNeutralMode(NeutralMode.Coast);
-		rightMiddle.setNeutralMode(NeutralMode.Coast);
-		rightFront.setNeutralMode(NeutralMode.Coast);
-		leftBack.setNeutralMode(NeutralMode.Coast);
-		leftMiddle.setNeutralMode(NeutralMode.Coast);
-		leftFront.setNeutralMode(NeutralMode.Coast);
-				
-		rightMotors = new SpeedControllerGroup(rightBack, rightFront, rightMiddle);
-		leftMotors = new SpeedControllerGroup(leftFront, leftMiddle, leftBack);
-		drive = new DifferentialDrive(leftMotors, rightMotors);
-		
-		rightBack.setInverted(RobotMap.BACK_RIGHT_INV);
-		rightMiddle.setInverted(RobotMap.MIDDLE_RIGHT_INV);
-		rightFront.setInverted(RobotMap.FRONT_RIGHT_INV); 
-		leftBack.setInverted(RobotMap.BACK_LEFT_INV);
-		leftMiddle.setInverted(RobotMap.MIDDLE_LEFT_INV);
-		leftFront.setInverted(RobotMap.FRONT_LEFT_INV);
-
-		
-		leftBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
-		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 1, 10);
-		leftMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 2, 10);
-		rightBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
-		rightMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 1, 10);
-		rightFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 2, 10); 
-		*/
-
-		leftMaster = new WPI_TalonFX(2);
+		leftMaster = new WPI_TalonFX(RobotMap.FRONT_LEFT);
    		leftMaster.setInverted(false);
     	leftMaster.setSensorPhase(false);
     	leftMaster.setNeutralMode(NeutralMode.Brake);
 
-    	rightMaster = new WPI_TalonFX(5);
-    	rightMaster.setInverted(false);
+    	rightMaster = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
+    	rightMaster.setInverted(true);
     	rightMaster.setSensorPhase(false);
     	rightMaster.setNeutralMode(NeutralMode.Brake);
 
-    	WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
+    	WPI_TalonFX leftSlave0 = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
     	leftSlave0.setInverted(false);
     	leftSlave0.follow(leftMaster);
     	leftSlave0.setNeutralMode(NeutralMode.Brake);
-    	WPI_TalonFX leftSlave1 = new WPI_TalonFX(4);
+    	WPI_TalonFX leftSlave1 = new WPI_TalonFX(RobotMap.BACK_LEFT);
     	leftSlave1.setInverted(false);
     	leftSlave1.follow(leftMaster);
     	leftSlave1.setNeutralMode(NeutralMode.Brake);
 
-    	WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
+    	WPI_TalonFX rightSlave0 = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
     	rightSlave0.setInverted(false);
     	rightSlave0.follow(rightMaster);
     	rightSlave0.setNeutralMode(NeutralMode.Brake);
-    	WPI_TalonFX rightSlave1 = new WPI_TalonFX(7);
+    	WPI_TalonFX rightSlave1 = new WPI_TalonFX(RobotMap.BACK_RIGHT);
     	rightSlave1.setInverted(false);
     	rightSlave1.follow(rightMaster);
 		rightSlave1.setNeutralMode(NeutralMode.Brake);
 		
 		drive = new DifferentialDrive(leftMaster, rightMaster);
-
-
 		drive.setDeadband(0);
-		leftMaster.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0, 10);
+
+		leftMaster.configSelectedFeedbackSensor(
+			FeedbackDevice.IntegratedSensor,
+			PIDIDX, 10
+		);
+
+		rightMaster.configSelectedFeedbackSensor(
+			FeedbackDevice.IntegratedSensor,
+			PIDIDX, 10
+		);
+		
+		
 		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor,0, 10);
 
 		leftMaster.setSelectedSensorPosition(0);

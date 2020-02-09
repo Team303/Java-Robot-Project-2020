@@ -32,7 +32,8 @@ public class Intake {
         motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
     }
 
-    public  void control() {
+
+    public void control() {
         if (OI.lBtn[2]) {
             setIntake(0.7);
         } else {
@@ -46,7 +47,6 @@ public class Intake {
         }
 
     }
-
 
     public void setIntake(double power) {
         intake.set(power);

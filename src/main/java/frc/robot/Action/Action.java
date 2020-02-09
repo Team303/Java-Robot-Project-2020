@@ -6,8 +6,13 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.Action;
-
+//this class's methodes will be forced to be used by all other Action classes
 public interface Action {
 	public void run();
 	public boolean isFinished();
+
+	public static double[] driveStraight(double powSetpoint, double angleDifference, double tuningConstant) {             
+		//just math to drive straight                                                                                                         //memes
+		return new double[] {(powSetpoint + (angleDifference*tuningConstant)), (powSetpoint - (angleDifference*tuningConstant))};
+	}
 }

@@ -65,8 +65,6 @@ public class Robot extends TimedRobot {
 
     drive.setDeadband(0);
 
-
-
     leftMaster.configSelectedFeedbackSensor(
         FeedbackDevice.IntegratedSensor,
         PIDIDX, 10

@@ -8,9 +8,12 @@ package frc.robot;
 
 
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.ControlType;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,7 +22,8 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.ControlType;
 
-public class Shooter{
+public class Shooter {
+	// instance variables
 
 	CANSparkMax shooter;
 	CANSparkMax shooterSlave;
@@ -65,6 +69,9 @@ public class Shooter{
 	
 	}
 	
+	/**
+	 * Runs continually to regulate the behavior of the shooter.
+	 */
 	public void control() {
 
 		if (OI.lBtn[5]) {
@@ -88,7 +95,18 @@ public class Shooter{
 	public void setSetpoint(double set) {
 		this.setpoint = set;
 	}
+
+		/**
+		 * Returns the velocity of the encoder.
+		 */
+	public double getVelocity() {
+		return encoder.getVelocity() * RobotMap.kEncoderConstant * 10;
+	}
+		
+
 	
+	
+
 	public double getSpeed() {
 		return shooterEncoder.getVelocity();
 	}
@@ -102,7 +120,5 @@ public class Shooter{
 	/*public void resetI() {
 		shooter.clearIAccum();
 	}*/
-	
-
 	
 }

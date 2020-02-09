@@ -13,45 +13,42 @@ import frc.robot.Robot;
 /**
  * Add your docs here.
  */
+public class ActionShooter implements Action{
+    //makes varibles that will be for time stuff
+    double timeout; 
+    Timer t;
 
- //implement means that it need to use the methods that are in the Action class
-public class ActionIntake implements Action {
-
-    // make the varibles
-    double timeout;
-    Timer timer = new Timer();
-
-    //construtor setting the amout of time the action will run and stating timer
-    public ActionIntake(double timeout){
-        
+    public ActionShooter(double givenSetpoint, double timeout){
+         
+        //sets the amount of time that we want to run
         this.timeout = timeout;
+        //starts the timer
+        t.start();
+        // sets the setpoint to wherer we want to be shooting
+        Robot.shooter.setSetPoint(givenSetpoint);
 
-        timer.start();
-
-        
     }
 
     @Override
-    //running the intake method
-    public void run() {       
-        Robot.intake.runIntake();
+    public void run() {
+        //shoots
+        Robot.shooter.control();
     }
 
+
     @Override
-    
     public boolean isFinished() {
+         // checks if the timer has ran past our timeout   
+        boolean end = t.get() >= timeout;
 
-            //checking if the action has been runing for the designated amount of time
-           boolean end = timer.get() >= timeout;
-        
-           //stoping Action class
-           if(end){
+        // resets our setpoint and timer
+        if(end){
 
-            timer.stop();
-            timer.reset();
+            Robot.shooter.setSetPoint(0);
+            t.stop();
+            t.reset();
         }
-           
-        
         return end;
     }
 }
+

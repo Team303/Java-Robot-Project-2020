@@ -8,6 +8,7 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.OldRobot;
 import frc.robot.Robot;
 
 /**
@@ -18,36 +19,29 @@ public class ActionShooter implements Action{
     double timeout; 
     Timer t;
 
-    public ActionShooter(double givenSetpoint, double timeout){
-         
-        //sets the amount of time that we want to run
-        this.timeout = timeout;
-        //starts the timer
+    public ActionShooter(boolean limelight, double setpoint, double timeout){
         t.start();
-        // sets the setpoint to wherer we want to be shooting
-        Robot.shooter.setSetPoint(givenSetpoint);
+        this.timeout = timeout;
+        OldRobot.shooter.setSetpoint(setpoint);
 
     }
 
     @Override
     public void run() {
-        //shoots
-        Robot.shooter.control();
+        OldRobot.shooter.runPID();
     }
 
 
     @Override
     public boolean isFinished() {
-         // checks if the timer has ran past our timeout   
         boolean end = t.get() >= timeout;
 
-        // resets our setpoint and timer
         if(end){
-
-            Robot.shooter.setSetPoint(0);
+            OldRobot.shooter.setSetpoint(0);
             t.stop();
             t.reset();
         }
+
         return end;
     }
 }

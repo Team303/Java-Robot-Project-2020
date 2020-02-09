@@ -8,6 +8,7 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.OldRobot;
 import frc.robot.Robot;
 
 /**
@@ -17,36 +18,36 @@ import frc.robot.Robot;
  //implement means that it need to use the methods that are in the Action class
 public class ActionIntake implements Action {
 
-    // make the varibles
     double timeout;
+    double power;
     Timer timer = new Timer();
 
-    //construtor setting the amout of time the action will run and stating timer
     public ActionIntake(double timeout){
-        
+        this(timeout, 0.5);   
+    }
+
+    public ActionIntake(double timeout, double power) {
         this.timeout = timeout;
-
+        this.power = power;
         timer.start();
-
         
     }
 
     @Override
     //running the intake method
     public void run() {       
-        Robot.intake.runIntake();
+        OldRobot.intake.setIntake(power);
     }
 
     @Override
     
     public boolean isFinished() {
 
-            //checking if the action has been runing for the designated amount of time
-           boolean end = timer.get() >= timeout;
+        //checking if the action has been running for the designated amount of time
+        boolean end = timer.get() >= timeout;
         
-           //stoping Action class
-           if(end){
-
+        if(end){
+            OldRobot.intake.setIntake(0);
             timer.stop();
             timer.reset();
         }

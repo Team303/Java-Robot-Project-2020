@@ -13,13 +13,11 @@ import edu.wpi.first.wpilibj.Timer;
  * Add your docs here.
  */
 public class ActionWait implements Action {
-    //makes varibles that will be for time stuff
     double time;
     boolean firstRun;
 
     Timer t = new Timer();
 
-    //sets our time that we want to run
     public ActionWait(double time){
         this.time = time;
         firstRun = false;
@@ -27,7 +25,6 @@ public class ActionWait implements Action {
     }
 
     @Override
-    //starts timer and then does nothing
     public void run() {
         if(!firstRun){
             t.start();
@@ -42,7 +39,6 @@ public class ActionWait implements Action {
         boolean end = t.get() >= time;
 
         if(end){
-
             t.stop();
             t.reset();
         }

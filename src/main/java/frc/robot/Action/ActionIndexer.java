@@ -8,49 +8,39 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.OldRobot;
 import frc.robot.Robot;
 
 /**
  * Add your docs here.
  */
-public class ActionConveyorBelt implements Action {
+public class ActionIndexer implements Action {
 
-    //makes a variable for timer and how long we want our code to run
     Timer timer = new Timer();
-
+    double power = 0.0;
     double timeout;
 
-    //sets how long we want our code to run and starts the timer
-    public ActionConveyorBelt(double timeout){
-    
-    this.timeout = timeout;
-       
-    timer.start();
-        
-         
-       
+    public ActionIndexer(double timeout){
+        this(timeout, 0.5);
+    }
+
+    public ActionIndexer(double timeout, double power) {
+        this.timeout = timeout;
+        this.power = power;
+        timer.start();
     }
 
     @Override
     public void run() {
-        //sets the conveyorbelt to move at a curten speed (0.6)
-        Robot.intake.moveConveyor();
+        OldRobot.intake.setIndexer(power);
 
     }
-/***
 
-    @Override
-    /**
-     * Tests to see if the conveyor belt is finished moving by comparing to the time run
-     */ 
     public boolean isFinished() {
-        // checks if the timer has ran past our timeout 
         boolean end = timer.get() >= timeout;
-
-        // resets our setpoint and timer
+        
         if(end){
-            Robot.intake.stopConveyor();
-
+            OldRobot.intake.setIndexer(0);
             timer.stop();
             timer.reset();
         }

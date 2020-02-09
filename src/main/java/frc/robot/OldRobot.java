@@ -35,7 +35,7 @@ public class OldRobot extends TimedRobot {
 	public static Limelight limelight;
 	public static Camera camera;
 	public static Intake intake;
-	//public static Intake intake;
+	public static Shooter shooter;
 	
 
 	@Override
@@ -80,7 +80,6 @@ public class OldRobot extends TimedRobot {
 		}
 		
 	}
-	
 
 	@Override
 	public void autonomousInit() {

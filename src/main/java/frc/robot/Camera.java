@@ -13,15 +13,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Camera {
 
+
+	public Camera() {
+
+	}
+
     public static double[] driveStraight(double powSetpoint, double angleDifference, double tuningConstant) {                                                                                                                      //memes
 		return new double[] {(powSetpoint + (angleDifference*tuningConstant)), (powSetpoint - (angleDifference*tuningConstant))};
 	}
 
-	
 
-    public void turnToTarget(){
+    public boolean turnToTarget(double threshold){
         double tX = OldRobot.limelight.getXOffset();
-		OldRobot.drivebase.turnToAngle(0, -tX, 2);
+		return (Math.abs(OldRobot.drivebase.turnToAngle(0, -tX, threshold)) <= threshold);
+	}
+
+
+	public static final class ShooterPresets {
+		public static final int TRENCH_RUN = 10000;
+		public static final int INITIATION_LINE = 10000;
+
 	}
 
 }

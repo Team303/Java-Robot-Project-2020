@@ -33,12 +33,12 @@ public class RobotMap {
 	public static final boolean MIDDLE_RIGHT_INV = true;
 	public static final boolean BACK_RIGHT_INV = true;
 
-	public static final int INDEXER = -1;
-	public static final int INTAKE = -1;
-	public static final int MOTION_SENSOR = -1;
+	public static final int INDEXER = 10;
+	public static final int INTAKE = 10;
+	public static final int MOTION_SENSOR = 10;
 
-	public static final int SHOOTER = -1;
-	public static final int SHOOTER_SLAVE = -1;
+	public static final int SHOOTER = 10;
+	public static final int SHOOTER_SLAVE = 10;
 
 	public static final boolean SHOOTER_INV = false;
 	public static final boolean SHOOTER_SLAVE_INV = true;

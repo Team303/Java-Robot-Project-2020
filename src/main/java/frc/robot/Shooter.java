@@ -75,11 +75,21 @@ public class Shooter {
 	public void control() {
 
 		if (OI.lBtn[5]) {
-			setpoint = getSetpointFromDistance();
+			useVisionSetpoint();
 		} else if (OI.xBtnA){
 			setpoint = 0;
 		}
 
+		runPID();
+	}
+
+
+	public void useVisionSetpoint() {
+		setSetpoint(getSetpointFromDistance());
+	}
+
+
+	public void runPID() {
 		shooterPID.setReference(setpoint, ControlType.kVelocity);
 
 		double velocityThreshold  = 10000;
@@ -89,24 +99,18 @@ public class Shooter {
 		} else {
 			OldRobot.intake.setIndexer(0);
 		}
-
 	}
 	
+
+
 	public void setSetpoint(double set) {
 		this.setpoint = set;
 	}
 
-		/**
-		 * Returns the velocity of the encoder.
-		 */
 	public double getVelocity() {
-		return encoder.getVelocity() * RobotMap.kEncoderConstant * 10;
+		return shooterEncoder.getVelocity() * RobotMap.kEncoderConstant * 10;
 	}
 		
-
-	
-	
-
 	public double getSpeed() {
 		return shooterEncoder.getVelocity();
 	}

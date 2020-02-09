@@ -12,19 +12,11 @@ package frc.robot;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.ControlType;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.CANPIDController;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.ControlType;
+
 
 public class Shooter {
-	// instance variables
-
 	CANSparkMax shooter;
 	CANSparkMax shooterSlave;
 
@@ -74,20 +66,15 @@ public class Shooter {
 	 */
 	public void control() {
 
+		/*
 		if (OI.lBtn[5]) {
 			useVisionSetpoint();
 		} else if (OI.xBtnA){
 			setpoint = 0;
-		}
+		}*/
 
 		runPID();
 	}
-
-
-	public void useVisionSetpoint() {
-		setSetpoint(getSetpointFromDistance());
-	}
-
 
 	public void runPID() {
 		shooterPID.setReference(setpoint, ControlType.kVelocity);
@@ -100,8 +87,10 @@ public class Shooter {
 			OldRobot.intake.setIndexer(0);
 		}
 	}
-	
 
+	public void useVisionSetpoint() {
+		setSetpoint(getSetpointFromDistance());
+	}
 
 	public void setSetpoint(double set) {
 		this.setpoint = set;

@@ -18,6 +18,20 @@ public class Camera {
 
 	}
 
+
+	public void scoreWithVision(boolean seekRight) {
+		if (!OldRobot.limelight.hasValidContours()) {
+			if (seekRight) OldRobot.drivebase.drive(-0.3, 0.3);
+			else OldRobot.drivebase.drive(0.3, -0.3);
+		} else {
+			if (turnToTarget(2)) {
+				OldRobot.shooter.useVisionSetpoint();
+				OldRobot.shooter.runPID();
+			}
+		}
+
+	}
+
     public static double[] driveStraight(double powSetpoint, double angleDifference, double tuningConstant) {                                                                                                                      //memes
 		return new double[] {(powSetpoint + (angleDifference*tuningConstant)), (powSetpoint - (angleDifference*tuningConstant))};
 	}

@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class NavX { //this class controls the PID for the navX as well as the AHRS class itself
-	AHRS navX;
-	public PIDController turnController;
+	public AHRS navX;
+	PIDController turnController;
 	double rate; //this is the output
 	double setPoint = 0;
 	double last_world_linear_accel_x;

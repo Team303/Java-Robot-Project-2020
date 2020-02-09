@@ -17,32 +17,55 @@ import com.revrobotics.ControlType;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.ControlType;
 
 public class Shooter {
 	// instance variables
 
-	 CANSparkMax shooter;
-	 CANEncoder encoder;
-	 CANPIDController shooterPIDController;
-	
-	
-	 double setPoint;
-	
-	 static final double maxFeedError = 0.15; //.15
-	
-	 /**
-	  * Constructor establishes the necessary shooting instructions.
-	  */
-	 public Shooter() {
-		shooter = new CANSparkMax(RobotMap.SHOOTER, CANSparkMaxLowLevel.MotorType.kBrushless);
+	CANSparkMax shooter;
+	CANSparkMax shooterSlave;
 
-		encoder = new CANEncoder(shooter);
+	CANPIDController shooterPID;
+	CANEncoder	shooterEncoder;
+	int count = 0;
 
-		shooterPIDController = new CANPIDController(shooter);
-		setPIDF(0.3, 0.000003, 1, 0.02475); //  
-		//use only if needed
-		//shooter.getInverted();
-		shooter.set(0);
+	double setpoint = 0;
+	
+	static final double maxFeedError = 0.15; //.15
+	
+	public Shooter() {
+	 	shooter = new CANSparkMax(RobotMap.SHOOTER, MotorType.kBrushless);
+		shooterSlave = new CANSparkMax(RobotMap.SHOOTER_SLAVE, MotorType.kBrushless);
+
+		shooter.setInverted(RobotMap.SHOOTER_INV);
+		shooterSlave.setInverted(RobotMap.SHOOTER_INV);
+
+		shooterSlave.follow(shooter);
+
+		shooter.restoreFactoryDefaults();
+		shooterSlave.restoreFactoryDefaults();
+
+		shooterPID = shooter.getPIDController();
+		shooterEncoder = shooter.getEncoder();
+
+		double kP = 0.3;
+		double kI = 0.000003;
+		double kD = 1;
+		double kIz = 0;
+		double kFF = 0.02475;
+		double kMaxOutput = 1.0;
+		double kMinOutput = -1.0;
+
+		shooterPID.setP(kP);
+		shooterPID.setI(kI);
+		shooterPID.setD(kD);
+		shooterPID.setFF(kFF);
+		shooterPID.setOutputRange(kMinOutput, kMaxOutput);
+
+		setpoint = 0;
 	
 	}
 	
@@ -50,27 +73,27 @@ public class Shooter {
 	 * Runs continually to regulate the behavior of the shooter.
 	 */
 	public void control() {
-		
-		
-	
-		if(OI.xBtnY) { //set setpoint
-			setPoint = 0;
-			
-		} else if(OI.xBtnX) {
-			
-			setPoint = 20250; // was -26150
+
+		if (OI.lBtn[5]) {
+			setpoint = getSetpointFromDistance();
+		} else if (OI.xBtnA){
+			setpoint = 0;
 		}
-		//getVelocity(setpoint);
+
+		shooterPID.setReference(setpoint, ControlType.kVelocity);
+
+		double velocityThreshold  = 10000;
 		
-		
-		shooterPIDController.setReference (setPoint, ControlType.kVelocity);	
+		if (shooterEncoder.getVelocity() >= velocityThreshold) {
+			OldRobot.intake.setIndexer(0.3);
+		} else {
+			OldRobot.intake.setIndexer(0);
+		}
+
 	}
 	
-	/**
-	 * Sets the setpoint of the shooter.
-	 */
-	public void setSetPoint(double target){
-		setPoint = target;
+	public void setSetpoint(double set) {
+		this.setpoint = set;
 	}
 
 		/**
@@ -83,23 +106,19 @@ public class Shooter {
 
 	
 	
-	
-	/*public double getSpeed() {
-		return shooter.get();
+
+	public double getSpeed() {
+		return shooterEncoder.getVelocity();
+	}
+
+	public double getSetpointFromDistance() {
+		double intercept = 0;
+		double slope = 0;
+		return intercept + (slope * OldRobot.limelight.get2DDistance());
 	}
 	
 	/*public void resetI() {
 		shooter.clearIAccum();
 	}*/
-	
-	/**
-	 * Sets the PID values for the robot encoder.
-	 */
-	public void setPIDF( double P, double I, double D, double F) {
-		shooterPIDController.setP(P);
-		shooterPIDController.setI(I);
-		shooterPIDController.setD(D);
-		shooterPIDController.setFF(F);
-	}
 	
 }

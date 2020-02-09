@@ -3,6 +3,6 @@
   "maxVelocity": 14.0,
   "maxAcceleration": 6.56,
   "wheelBase": 2.3,
-  "gameName": "Destination: Deep Space",
+  "gameName": "Infinite Recharge",
   "outputDir": "../src/main/deploy"
 }

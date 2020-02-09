@@ -7,7 +7,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.wpilibj.*;
@@ -19,44 +21,67 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import edu.wpi.first.wpilibj.Talon;
+
 public class Drivebase extends SubsystemBase {
-
-	public WPI_TalonFX rightBack;
-	public WPI_TalonFX rightMiddle;
-	public WPI_TalonFX rightFront;
-	public WPI_TalonFX leftFront;
-	public WPI_TalonFX leftMiddle;
-	public WPI_TalonFX leftBack;
-
-	SpeedControllerGroup rightMotors;
-	SpeedControllerGroup leftMotors;
+	
+	WPI_TalonFX leftMaster;
+	WPI_TalonFX rightMaster;
 	DifferentialDrive drive;
+
+	static private int PIDIDX = 0;
+
 
 	DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0));
 	Pose2d pose = new Pose2d();
 
 	public Drivebase()  {
-		rightBack = new WPI_TalonFX(RobotMap.BACK_RIGHT);
-		rightMiddle = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
-		rightFront = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
-		leftBack = new WPI_TalonFX(RobotMap.BACK_LEFT);
-		leftMiddle = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
-		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);
-
-
-		rightMotors = new SpeedControllerGroup(rightBack, rightFront, rightMiddle);
-		leftMotors = new SpeedControllerGroup(leftBack, leftFront, leftMiddle);
-		drive = new DifferentialDrive(leftMotors, rightMotors);
 		
-		rightBack.setInverted(RobotMap.BACK_RIGHT_INV);
-		rightMiddle.setInverted(RobotMap.MIDDLE_RIGHT_INV);
-		rightFront.setInverted(RobotMap.FRONT_RIGHT_INV); 
-		leftBack.setInverted(RobotMap.BACK_LEFT_INV);
-		leftMiddle.setInverted(RobotMap.MIDDLE_LEFT_INV);
-		leftFront.setInverted(RobotMap.FRONT_LEFT_INV);
+		leftMaster = new WPI_TalonFX(RobotMap.FRONT_LEFT);
+   		leftMaster.setInverted(false);
+    	leftMaster.setSensorPhase(false);
+    	leftMaster.setNeutralMode(NeutralMode.Brake);
+
+    	rightMaster = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
+    	rightMaster.setInverted(true);
+    	rightMaster.setSensorPhase(false);
+    	rightMaster.setNeutralMode(NeutralMode.Brake);
+
+    	WPI_TalonFX leftSlave0 = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
+    	leftSlave0.setInverted(false);
+    	leftSlave0.follow(leftMaster);
+    	leftSlave0.setNeutralMode(NeutralMode.Brake);
+    	WPI_TalonFX leftSlave1 = new WPI_TalonFX(RobotMap.BACK_LEFT);
+    	leftSlave1.setInverted(false);
+    	leftSlave1.follow(leftMaster);
+    	leftSlave1.setNeutralMode(NeutralMode.Brake);
+
+    	WPI_TalonFX rightSlave0 = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
+    	rightSlave0.setInverted(false);
+    	rightSlave0.follow(rightMaster);
+    	rightSlave0.setNeutralMode(NeutralMode.Brake);
+    	WPI_TalonFX rightSlave1 = new WPI_TalonFX(RobotMap.BACK_RIGHT);
+    	rightSlave1.setInverted(false);
+    	rightSlave1.follow(rightMaster);
+		rightSlave1.setNeutralMode(NeutralMode.Brake);
 		
-		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
-		rightBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 1000);
+		drive = new DifferentialDrive(leftMaster, rightMaster);
+		drive.setDeadband(0);
+
+		leftMaster.configSelectedFeedbackSensor(
+			FeedbackDevice.IntegratedSensor,
+			PIDIDX, 10
+		);
+
+		rightMaster.configSelectedFeedbackSensor(
+			FeedbackDevice.IntegratedSensor,
+			PIDIDX, 10
+		);
+		
+		leftMaster.setSelectedSensorPosition(0);
+		rightMaster.setSelectedSensorPosition(0);
+
+	
 	}
 	
 	public void drive(double left, double right) {
@@ -64,68 +89,131 @@ public class Drivebase extends SubsystemBase {
 	}
 
 	public void setOutputVolts(double left, double right) {
-		leftMotors.setVoltage(-left * SmartDashboard.getNumber("Constant", 0.8));
-		rightMotors.setVoltage(right *  SmartDashboard.getNumber("Constant", 0.8));
+		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
+		leftMaster.setVoltage(left * multiplier);
+		rightMaster.setVoltage(-right *  multiplier);
 	}
 
 
 	public int getLeftEncoder() {
-		return leftFront.getSelectedSensorPosition(0);
+		return leftMaster.getSelectedSensorPosition(0);
 	}
 
 	public int getRightEncoder() {
-		return -rightBack.getSelectedSensorPosition(0);
+		return rightMaster.getSelectedSensorPosition(0);
+	
 	}
 
-	//--------------- POSE METHODS---------------------
+	public void zeroEncoders() {
+		leftMaster.setSelectedSensorPosition(0, 0, 1000);
+		rightMaster.setSelectedSensorPosition(0, 0, 1000);
+
+	}
+
+	//-------------- TURN TO ANGLE ---------------------------
+	public double turnToAngle(double current, double intended, double tolerance) {
+		double slope45 = 0.0105;
+		double intercept45 = 0;
+		double slope90 = 0;
+		double intercept90 = 0;
+		double slope180 = 0;
+		double intercept180 = 0;
+
+		double distanceError = distanceBetweenAngles(current, intended);
+		double power = 0;
+
+		if (Math.abs(distanceError) <= 45) {
+			power = intercept45 + (slope45 * distanceError);
+		} else if (Math.abs(distanceError) <= 90) {
+			power = intercept90 + (slope90 * distanceError);
+		} else if (Math.abs(distanceError) <= 180) {
+			power = intercept180 + (slope180 * distanceError);
+		}
+
+		if (Math.abs(distanceError) <= tolerance) {
+			power = 0;
+		}
+
+		drive(Math.copySign(power, distanceError), -Math.copySign(power, distanceError));
+
+		return distanceError;
+
+	}
+
+	public static double distanceBetweenAngles(double current, double intended) {
+
+		double currentAct = (current >= 0) ? current: 360 - Math.abs(current);
+		double intendedAct = (intended >= 0) ? intended: 360 - Math.abs(intended);	
+
+		double rightDistance = 0;
+
+		if (intendedAct >= currentAct) {	
+			rightDistance = intendedAct - currentAct;
+		} else {
+			rightDistance = Math.abs(current) + Math.abs(intendedAct);
+		}
+		
+		double leftDistance = Math.abs(360 - rightDistance);
+		
+		return (leftDistance <= rightDistance) ? -leftDistance : rightDistance;
+		
+	}
+
+	//--------------- UPDATE POSE METHODS---------------------
 
 	public void periodic() {
-		pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftMeters(), getRightMeters());
+		//pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftDistanceMeters(), getRightDistanceMeters());
 	}
-	public void zeroEncoder() {
-		leftFront.setSelectedSensorPosition(0, 0, 1000);
-		rightBack.setSelectedSensorPosition(0, 0, 1000);
+
+	public void reset() {
+		//odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(-Robot.navX.getYaw()));
 	}
 
 	public DifferentialDriveWheelSpeeds getWheelSpeeds() {
 		return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
 	}
 
-	public void reset() {
-		odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(Robot.navX.getYaw()));
-	}
+
+	//--------------- POSE HELPER METHODS---------------------
+
 
 	public Pose2d getPose(){
 		return odometry.getPoseMeters();
 	}
 
-	public double getPoseX() {
-		return pose.getTranslation().getX();
-		
+	public double getLeftDistanceMeters() {
+		return leftMaster.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
 	}
 
-	public double getPoseY(){
-		return pose.getTranslation().getY();
-	}
-
-	//------------------HELPER METHODS------------------------------
-
-
-	public double getLeftMeters() {
-		return leftFront.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
-	}
-
-	public double getRightMeters() {
-		return -rightBack.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
+	public double getRightDistanceMeters() {
+		return -rightMaster.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
 	}
 
 	public double getLeftVelocity() {
-		return leftFront.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
+		return leftMaster.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
 	}
 
 	public double getRightVelocity() {
-		return -rightBack.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
+		return -rightMaster.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
 	}
+	
+	public double getPoseX() {
+		return pose.getTranslation().getX();	
+	}
+	
+	public double getPoseY(){
+		return pose.getTranslation().getY();
+	}
+	
+
+		/*rightBack.set(ControlMode.PercentOutput, right);
+		rightMiddle.set(ControlMode.PercentOutput, right);
+		rightFront.set(ControlMode.PercentOutput, right);
+		leftFront.set(ControlMode.PercentOutput, left);
+		leftMiddle.set(ControlMode.PercentOutput, left);
+		leftBack.set(ControlMode.PercentOutput, left);*/
+	
+	
 	
 
 

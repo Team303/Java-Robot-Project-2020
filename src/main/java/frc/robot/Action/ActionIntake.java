@@ -33,10 +33,8 @@ public class ActionIntake implements Action {
 
     @Override
     //running the intake method
-    public void run() {
-       
+    public void run() {       
         Robot.intake.runIntake();
-
     }
 
     @Override

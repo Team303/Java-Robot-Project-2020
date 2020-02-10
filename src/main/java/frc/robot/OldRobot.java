@@ -36,6 +36,7 @@ public class OldRobot extends TimedRobot {
 	public static Camera camera;
 	public static Intake intake;
 	public static Shooter shooter;
+	public static Axis axis;
 	
 
 	@Override

@@ -75,7 +75,7 @@ public class Commands {
             config
         );
         
-        /*
+        
         RamseteCommand ramseteCommand = new RamseteCommand(
             trajectory,
             m_robotDrive::getPose,
@@ -87,7 +87,7 @@ public class Commands {
             new PIDController(rP, rI, rD),
             m_robotDrive::setOutputVolts,
             m_robotDrive
-        );*/
+        );
 
 
         //return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));

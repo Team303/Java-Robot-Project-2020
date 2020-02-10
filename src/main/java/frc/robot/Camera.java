@@ -21,15 +21,34 @@ public class Camera {
 
 	public void scoreWithVision(boolean seekRight) {
 		if (!OldRobot.limelight.hasValidContours()) {
-			if (seekRight) OldRobot.drivebase.drive(-0.3, 0.3);
-			else OldRobot.drivebase.drive(0.3, -0.3);
+			if (seekRight) OldRobot.drivebase.drive(0.3, -0.3);
+			else OldRobot.drivebase.drive(-0.3, 0.3);
 		} else {
 			if (turnToTarget(2)) {
 				OldRobot.shooter.useVisionSetpoint();
 				OldRobot.shooter.runPID();
 			}
 		}
+	}
 
+	public void seekBall(boolean seekRight) {
+		if (OldRobot.axis.hasValidContours()) {
+			double[] pow = driveStraight(0.3, getCameraDegreeOffset(), 0.05);
+			OldRobot.drivebase.drive(pow[0], pow[1]);
+		} else {
+			if (seekRight) OldRobot.drivebase.drive(-0.3, 0.3);
+			else OldRobot.drivebase.drive(0.3, -0.3);
+		}
+	}
+
+	static final double pixelPerDegreeConstant = 0.146875;
+
+	public static double getCameraDegreeOffset() {
+		double centerXIdeal = Axis.cameraResX / 2;
+		double centerXCurrent = OldRobot.axis.getCenterX();
+		double centerXOffset = centerXIdeal-centerXCurrent;
+		
+		return centerXOffset*pixelPerDegreeConstant;
 	}
 
     public static double[] driveStraight(double powSetpoint, double angleDifference, double tuningConstant) {                                                                                                                      //memes

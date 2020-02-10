@@ -8,7 +8,7 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.OldRobot;
+import frc.robot.Robot;
 import frc.robot.Robot;
 
 /**
@@ -36,7 +36,7 @@ public class ActionIntake implements Action {
     @Override
     //running the intake method
     public void run() {       
-        OldRobot.intake.setIntake(power);
+        Robot.intake.setIntake(power);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ActionIntake implements Action {
         boolean end = timer.get() >= timeout;
         
         if(end){
-            OldRobot.intake.setIntake(0);
+            Robot.intake.setIntake(0);
             timer.stop();
             timer.reset();
         }

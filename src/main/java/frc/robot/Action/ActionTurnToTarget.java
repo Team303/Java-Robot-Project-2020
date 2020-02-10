@@ -6,7 +6,7 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.Action;
-import frc.robot.OldRobot;
+import frc.robot.Robot;
 
 /**
  * Add your docs here.
@@ -25,7 +25,7 @@ public class ActionTurnToTarget implements Action {
     }
 
     public boolean isFinished() {
-        return OldRobot.camera.turnToTarget(2);
+        return Robot.camera.turnToTarget(2);
     }
 
 }

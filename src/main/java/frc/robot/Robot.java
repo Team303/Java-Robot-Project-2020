@@ -1,102 +1,162 @@
-/**
- * This is a very simple robot program that can be used to send telemetry to
- * the data_logger script to characterize your drivetrain. If you wish to use
- * your actual robot code, you only need to implement the simple logic in the
- * autonomousPeriodic function and change the NetworkTables update rate
- */
+/*----------------------------------------------------------------------------*/
+/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
+/* Open Source Software - may be modified and shared by FRC teams. The code   */
+/* must be accompanied by the FIRST BSD license file in the root directory of */
+/* the project.                                                               */
+/*----------------------------------------------------------------------------*/
 
 package frc.robot;
 
 
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends TimedRobot {
+import java.io.IOException;
 
-  static private int PIDIDX = 0;
-
-  Joystick left;
-  Joystick right;
-
-  DifferentialDrive drive;
-  WPI_TalonFX leftMaster;
-  WPI_TalonFX rightMaster;
-
-  @Override
-  public void robotInit() {
-
-    left = new Joystick(0);
-    right = new Joystick(1);
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj2.command.Command;
 
 
-    leftMaster = new WPI_TalonFX(2);
-    leftMaster.setInverted(false);
-    leftMaster.setSensorPhase(false);
-    leftMaster.setNeutralMode(NeutralMode.Brake);
+public class Robot extends TimedRobot {	
 
-    rightMaster = new WPI_TalonFX(5);
-    rightMaster.setInverted(true);
-    rightMaster.setSensorPhase(false);
-    rightMaster.setNeutralMode(NeutralMode.Brake);
-
-    WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
-    leftSlave0.setInverted(false);
-    leftSlave0.follow(leftMaster);
-    leftSlave0.setNeutralMode(NeutralMode.Brake);
-    WPI_TalonFX leftSlave1 = new WPI_TalonFX(4);
-    leftSlave1.setInverted(false);
-    leftSlave1.follow(leftMaster);
-    leftSlave1.setNeutralMode(NeutralMode.Brake);
-
-    WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
-    rightSlave0.setInverted(true);
-    rightSlave0.follow(rightMaster);
-    rightSlave0.setNeutralMode(NeutralMode.Brake);
-    WPI_TalonFX rightSlave1 = new WPI_TalonFX(7);
-    rightSlave1.setInverted(true);
-    rightSlave1.follow(rightMaster);
-    rightSlave1.setNeutralMode(NeutralMode.Brake);
-
-    drive = new DifferentialDrive(leftMaster, rightMaster);
-
-    drive.setDeadband(0);
-
-    leftMaster.configSelectedFeedbackSensor(
-        FeedbackDevice.IntegratedSensor,
-        PIDIDX, 10
-    );
+	public static NavX navX;
+	public static Drivebase drivebase;
+	public static Commands commands;
+	public static Command autoCommand;
+	public static Limelight limelight;
+	public static Camera camera;
+	public static Intake intake;
+	public static Shooter shooter;
+	public static Axis axis;
 	
-    rightMaster.configSelectedFeedbackSensor(
-        FeedbackDevice.IntegratedSensor,
-        PIDIDX, 10
-    );
+
+	@Override
+	public void robotInit() {
+		
+		drivebase = new Drivebase();
+		Robot.drivebase.zeroEncoders();	
+		
+		navX = new NavX();
+		navX.navX.zeroYaw();		
+		commands = new Commands();
+
+		//Smart Dashboard Commands
+		SmartDashboard.putNumber("lP value", 0.0);
+		SmartDashboard.putNumber("lI value", 0.0);
+		SmartDashboard.putNumber("lD value", 0.0);
+		SmartDashboard.putNumber("rP value", 0.0);
+		SmartDashboard.putNumber("rI value", 0.0);
+		SmartDashboard.putNumber("rD value", 0.0);
+   
+        SmartDashboard.putNumber("kS", RobotMap.ksVolts);
+        SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
+        SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
+
+        SmartDashboard.putNumber("Max Velocity", 3.0);
+        SmartDashboard.putNumber("Max Acceleration", 3.0);
+
+		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
+	}
+
+	@Override
+	public void robotPeriodic() {
+		updateSmartDashboard();
+		OI.update();
+
+		if (OI.lZ < 0.5) {
+			drivebase.zeroEncoders();
+			navX.zeroYaw();
+		}
+		
+	}
+
+	@Override
+	public void autonomousInit() {
+		Robot.drivebase.zeroEncoders();
+		Robot.drivebase.reset();
+
+		try{
+			autoCommand = commands.getAutonomousCommand();
+		} catch (Exception e) {
+			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
+		}
+
+		
+
+		autoCommand.schedule();
+		System.out.println("--------------START-------------");
+
+	}
+
+	/**
+	 * This function is called periodically during autonomous
+	 */
+	@Override
+	public void autonomousPeriodic() {	
+		Robot.drivebase.periodic();
+		CommandScheduler.getInstance().run();
 	
-    leftMaster.setSelectedSensorPosition(0);
-    rightMaster.setSelectedSensorPosition(0);
 
-  }
+		//System.out.println("X Pose: " + Robot.drivebase.getPoseX());
+		//System.out.println("Y Pose: " + Robot.drivebase.getPoseY());
 
+		System.out.println("LEFT PWR: " + Robot.drivebase.leftMaster.get());
+		//System.out.println("DIFFERENCE: " + (Robot.drivebase.leftMaster.getMotorOutputVoltage() - Math.abs(Robot.drivebase.rightMaster.getMotorOutputVoltage())));
+		//System.out.println("NavX: " + Robot.navX.getYaw());
+		//System.out.println("RIGHT PWR: " + Robot.drivebase.rightMaster.getMotorOutputVoltage());
+		System.out.println("-----------------------------");
 
-  @Override
-  public void autonomousInit() {
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-  }
-
-  @Override
-  public void teleopInit() {
-  }
-
-  @Override
-  public void teleopPeriodic() {
-    drive.tankDrive(-left.getY(), right.getY());
-  }
+	}
 
 
+
+	/**
+	 * Run once during operator control
+	 */
+	@Override
+	public void teleopInit() {
+		navX.navX.zeroYaw();
+	}
+
+	/**
+	 * This function is called periodically during operator control
+	 */
+	@Override
+	public void teleopPeriodic() {
+		OI.update();
+		Robot.drivebase.periodic();
+		Robot.drivebase.drive(-OI.lY, -OI.rY);
+		
+	}
+
+	public void updateSmartDashboard() {
+		
+		//Encoder Values & NavX Yaw of all the wheels
+		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
+		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
+		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
+
+		//Pose, Velocity, Distance Information
+		SmartDashboard.putNumber("Pose X", Robot.drivebase.getPoseX());
+		SmartDashboard.putNumber("Pose Y", Robot.drivebase.getPoseY());
+		SmartDashboard.putNumber("Left Wheel Speed", Robot.drivebase.getLeftVelocity());
+		SmartDashboard.putNumber("Right Wheel Speed", Robot.drivebase.getLeftVelocity());
+		SmartDashboard.putNumber("Left Distance", Robot.drivebase.getLeftDistanceMeters());
+		SmartDashboard.putNumber("Right Distance", Robot.drivebase.getRightDistanceMeters());
+		SmartDashboard.putNumber("Left Feet Distance", Units.metersToFeet(Robot.drivebase.getLeftDistanceMeters()));
+		SmartDashboard.putNumber("Right Feet Distance", Units.metersToFeet(Robot.drivebase.getRightDistanceMeters()));
+
+		//Joystick Values
+		SmartDashboard.putNumber("Left Joystick", OI.lY);
+		SmartDashboard.putNumber("Right Joystick", OI.rY);
+	}
 }

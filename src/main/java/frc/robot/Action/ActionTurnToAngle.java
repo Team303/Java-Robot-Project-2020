@@ -7,7 +7,7 @@
 
 package frc.robot.Action;
 
-import frc.robot.OldRobot;
+import frc.robot.Robot;
 
 /**
  * Add your docs here.
@@ -25,7 +25,7 @@ public class ActionTurnToAngle implements Action {
 
 
     public void run() {
-        error = OldRobot.drivebase.turnToAngle(OldRobot.navX.getYaw(), angle, tolerance);
+        error = Robot.drivebase.turnToAngle(Robot.navX.getYaw(), angle, tolerance);
     }
 
 

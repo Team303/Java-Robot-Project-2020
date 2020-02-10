@@ -33,14 +33,14 @@ import java.nio.file.Paths;
  */
 public class Commands {
 
-    private final Drivebase m_robotDrive = new Drivebase();
+    private final Drivebase m_robotDrive = Robot.drivebase;
 
     public Command getAutonomousCommand() throws Exception {
 
-        double lP = SmartDashboard.getNumber("lP value", 7.77);
+        double lP = SmartDashboard.getNumber("lP value", 9.1);
         double lI = SmartDashboard.getNumber("lI value", 0.0);
         double lD = SmartDashboard.getNumber("lD value", 0.0);
-        double rP = SmartDashboard.getNumber("rP value", 7.77);
+        double rP = SmartDashboard.getNumber("rP value", 9.1);
         double rI = SmartDashboard.getNumber("rI value", 0.0);
         double rD = SmartDashboard.getNumber("rD value", 0.0);
 
@@ -79,18 +79,16 @@ public class Commands {
             trajectory,
             m_robotDrive::getPose,
             new RamseteController(2,0.7),
-            new SimpleMotorFeedforward(kS, kV, kA),
+            new SimpleMotorFeedforward(0.117, 2.25, 0.225),
             RobotMap.kDriveKinematics,
             m_robotDrive::getWheelSpeeds,
-            new PIDController(lP, lI, lD),
+            new PIDController(lP, rI, rD),
             new PIDController(rP, rI, rD),
             m_robotDrive::setOutputVolts,
             m_robotDrive
         );
 
-
         return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));
-        //return null;
     } 
 
 }

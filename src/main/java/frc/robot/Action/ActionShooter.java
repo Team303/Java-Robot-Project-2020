@@ -9,7 +9,7 @@ package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Limelight;
-import frc.robot.OldRobot;
+import frc.robot.Robot;
 import frc.robot.Robot;
 
 /**
@@ -25,13 +25,13 @@ public class ActionShooter implements Action{
         t.start();
         this.timeout = timeout;
         this.limelight = limelight;
-        OldRobot.shooter.setSetpoint(setpoint);
+        Robot.shooter.setSetpoint(setpoint);
     }
 
     @Override
     public void run() {
-        if (limelight) OldRobot.shooter.useVisionSetpoint();
-        OldRobot.shooter.runPID();
+        if (limelight) Robot.shooter.useVisionSetpoint();
+        Robot.shooter.runPID();
     }
 
 
@@ -40,7 +40,7 @@ public class ActionShooter implements Action{
         boolean end = t.get() >= timeout;
 
         if(end){
-            OldRobot.shooter.setSetpoint(0);
+            Robot.shooter.setSetpoint(0);
             t.stop();
             t.reset();
         }

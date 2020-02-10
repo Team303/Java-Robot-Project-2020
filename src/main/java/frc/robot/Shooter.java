@@ -82,9 +82,9 @@ public class Shooter {
 		double velocityThreshold  = 10000;
 		
 		if (shooterEncoder.getVelocity() >= velocityThreshold) {
-			OldRobot.intake.setIndexer(0.3);
+			Robot.intake.setIndexer(0.3);
 		} else {
-			OldRobot.intake.setIndexer(0);
+			Robot.intake.setIndexer(0);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class Shooter {
 	public double getSetpointFromDistance() {
 		double intercept = 0;
 		double slope = 0;
-		return intercept + (slope * OldRobot.limelight.get2DDistance());
+		return intercept + (slope * Robot.limelight.get2DDistance());
 	}
 	
 	/*public void resetI() {

@@ -8,7 +8,6 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.OldRobot;
 import frc.robot.Robot;
 
 /**
@@ -38,14 +37,14 @@ public class ActionDriveStraightByEncoders implements Action {
     @Override
     public void run() {
         if(!firstRun){
-            initalYaw = OldRobot.navX.getYaw();
+            initalYaw = Robot.navX.getYaw();
 			t.start();
-			initial = OldRobot.drivebase.getLeftEncoder();
+			initial = Robot.drivebase.getLeftEncoder();
 			firstRun = true;
         }
 
-        double[] pow = Action.driveStraight(power, OldRobot.navX.getYaw() - initalYaw, 0.005);
-		OldRobot.drivebase.drive(pow[0], pow[1]);		
+        double[] pow = Action.driveStraight(power, Robot.navX.getYaw() - initalYaw, 0.005);
+		Robot.drivebase.drive(pow[0], pow[1]);		
     }
 
     @Override
@@ -57,7 +56,7 @@ public class ActionDriveStraightByEncoders implements Action {
         
         if(timer.get()>=timeout) timer.stop();
 
-		return Math.abs(OldRobot.drivebase.getLeftEncoder()-initial) >= Math.abs(distance) || timer.get() >=timeout;
+		return Math.abs(Robot.drivebase.getLeftEncoder()-initial) >= Math.abs(distance) || timer.get() >=timeout;
 
     }
 }

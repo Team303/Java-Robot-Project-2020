@@ -45,9 +45,9 @@ public class RobotMap {
 
 
 	//From Robot Characterization 
-	public static final double ksVolts = 0.126; 					
-	public static final double kvVoltSecondsPerMeter = 2.26;	
-	public static final double kaVoltSecondsSquaredPerMeter = 0.191; 
+	public static final double ksVolts = 0.117; 					
+	public static final double kvVoltSecondsPerMeter = 2.25;	
+	public static final double kaVoltSecondsSquaredPerMeter = 0.225; 
 
 
 	public static final double kTrackWidthMeters = Units.inchesToMeters(23.75);

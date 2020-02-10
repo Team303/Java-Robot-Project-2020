@@ -8,7 +8,6 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.OldRobot;
 import frc.robot.Robot;
 
 /**
@@ -32,7 +31,7 @@ public class ActionIndexer implements Action {
 
     @Override
     public void run() {
-        OldRobot.intake.setIndexer(power);
+        Robot.intake.setIndexer(power);
 
     }
 
@@ -40,7 +39,7 @@ public class ActionIndexer implements Action {
         boolean end = timer.get() >= timeout;
         
         if(end){
-            OldRobot.intake.setIndexer(0);
+            Robot.intake.setIndexer(0);
             timer.stop();
             timer.reset();
         }

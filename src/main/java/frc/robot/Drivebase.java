@@ -37,42 +37,43 @@ public class Drivebase extends SubsystemBase {
 
 	public Drivebase()  {
 		
-		leftMaster = new WPI_TalonFX(RobotMap.FRONT_LEFT);
-   		leftMaster.setInverted(false);
-    	leftMaster.setSensorPhase(false);
-    	leftMaster.setNeutralMode(NeutralMode.Brake);
-
-    	rightMaster = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
-    	rightMaster.setInverted(true);
-    	rightMaster.setSensorPhase(false);
-    	rightMaster.setNeutralMode(NeutralMode.Brake);
-
-    	WPI_TalonFX leftSlave0 = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
-    	leftSlave0.setInverted(false);
-    	leftSlave0.follow(leftMaster);
-    	leftSlave0.setNeutralMode(NeutralMode.Brake);
-    	WPI_TalonFX leftSlave1 = new WPI_TalonFX(RobotMap.BACK_LEFT);
-    	leftSlave1.setInverted(false);
-    	leftSlave1.follow(leftMaster);
-    	leftSlave1.setNeutralMode(NeutralMode.Brake);
-
-    	WPI_TalonFX rightSlave0 = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
-    	rightSlave0.setInverted(false);
-    	rightSlave0.follow(rightMaster);
-    	rightSlave0.setNeutralMode(NeutralMode.Brake);
-    	WPI_TalonFX rightSlave1 = new WPI_TalonFX(RobotMap.BACK_RIGHT);
-    	rightSlave1.setInverted(false);
-    	rightSlave1.follow(rightMaster);
+		leftMaster = new WPI_TalonFX(2);
+		leftMaster.setInverted(false);
+		leftMaster.setSensorPhase(false);
+		leftMaster.setNeutralMode(NeutralMode.Brake);
+	
+		rightMaster = new WPI_TalonFX(5);
+		rightMaster.setInverted(false);
+		rightMaster.setSensorPhase(false);
+		rightMaster.setNeutralMode(NeutralMode.Brake);
+	
+		WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
+		leftSlave0.setInverted(false);
+		leftSlave0.follow(leftMaster);
+		leftSlave0.setNeutralMode(NeutralMode.Brake);
+		WPI_TalonFX leftSlave1 = new WPI_TalonFX(4);
+		leftSlave1.setInverted(false);
+		leftSlave1.follow(leftMaster);
+		leftSlave1.setNeutralMode(NeutralMode.Brake);
+	
+		WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
+		rightSlave0.setInverted(false);
+		rightSlave0.follow(rightMaster);
+		rightSlave0.setNeutralMode(NeutralMode.Brake);
+		WPI_TalonFX rightSlave1 = new WPI_TalonFX(7);
+		rightSlave1.setInverted(false);
+		rightSlave1.follow(rightMaster);
 		rightSlave1.setNeutralMode(NeutralMode.Brake);
-		
+	
 		drive = new DifferentialDrive(leftMaster, rightMaster);
+	
 		drive.setDeadband(0);
-
+	
 		leftMaster.configSelectedFeedbackSensor(
 			FeedbackDevice.IntegratedSensor,
 			PIDIDX, 10
 		);
-
+		
 		rightMaster.configSelectedFeedbackSensor(
 			FeedbackDevice.IntegratedSensor,
 			PIDIDX, 10
@@ -90,8 +91,10 @@ public class Drivebase extends SubsystemBase {
 
 	public void setOutputVolts(double left, double right) {
 		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
-		leftMaster.setVoltage(left * multiplier);
-		rightMaster.setVoltage(-right *  multiplier);
+		System.out.println("Local Diff" + (Math.abs(left) - Math.abs(right)));
+		//leftMaster.setVoltage(left * multiplier);
+		//rightMaster.setVoltage(-left *  multiplier);
+		drive(left/12.0, right/12.0);
 	}
 
 
@@ -162,11 +165,11 @@ public class Drivebase extends SubsystemBase {
 	//--------------- UPDATE POSE METHODS---------------------
 
 	public void periodic() {
-		//pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftDistanceMeters(), getRightDistanceMeters());
+		pose = odometry.update(Rotation2d.fromDegrees(-Robot.navX.getYaw()), getLeftDistanceMeters(), getRightDistanceMeters());
 	}
 
 	public void reset() {
-		//odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(-Robot.navX.getYaw()));
+		odometry.resetPosition(new Pose2d(), Rotation2d.fromDegrees(-Robot.navX.getYaw()));
 	}
 
 	public DifferentialDriveWheelSpeeds getWheelSpeeds() {

@@ -26,24 +26,24 @@ public class Camera {
 
 
 	public void scoreWithVision(boolean seekRight) {
-		if (!OldRobot.limelight.hasValidContours()) {
-			if (seekRight) OldRobot.drivebase.drive(0.3, -0.3);
-			else OldRobot.drivebase.drive(-0.3, 0.3);
+		if (!Robot.limelight.hasValidContours()) {
+			if (seekRight) Robot.drivebase.drive(0.3, -0.3);
+			else Robot.drivebase.drive(-0.3, 0.3);
 		} else {
 			if (turnToTarget(2)) {
-				OldRobot.shooter.useVisionSetpoint();
-				OldRobot.shooter.runPID();
+				Robot.shooter.useVisionSetpoint();
+				Robot.shooter.runPID();
 			}
 		}
 	}
 
 	public void seekBall(boolean seekRight) {
-		if (OldRobot.axis.hasValidContours()) {
+		if (Robot.axis.hasValidContours()) {
 			double[] pow = driveStraight(0.3, getCameraDegreeOffset(), 0.05);
-			OldRobot.drivebase.drive(pow[0], pow[1]);
+			Robot.drivebase.drive(pow[0], pow[1]);
 		} else {
-			if (seekRight) OldRobot.drivebase.drive(-0.3, 0.3);
-			else OldRobot.drivebase.drive(0.3, -0.3);
+			if (seekRight) Robot.drivebase.drive(-0.3, 0.3);
+			else Robot.drivebase.drive(0.3, -0.3);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class Camera {
 
 	public static double getCameraDegreeOffset() {
 		double centerXIdeal = Axis.cameraResX / 2;
-		double centerXCurrent = OldRobot.axis.getCenterX();
+		double centerXCurrent = Robot.axis.getCenterX();
 		double centerXOffset = centerXIdeal-centerXCurrent;
 		
 		return centerXOffset*pixelPerDegreeConstant;
@@ -63,8 +63,8 @@ public class Camera {
 
 
     public boolean turnToTarget(double threshold){
-        double tX = OldRobot.limelight.getXOffset();
-		return (Math.abs(OldRobot.drivebase.turnToAngle(0, -tX, threshold)) <= threshold);
+        double tX = Robot.limelight.getXOffset();
+		return (Math.abs(Robot.drivebase.turnToAngle(0, -tX, threshold)) <= threshold);
 	}
 
 

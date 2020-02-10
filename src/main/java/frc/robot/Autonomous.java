@@ -2,7 +2,7 @@
 /* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
+/* the PPoject.                                                               */
 /*----------------------------------------------------------------------------*/
 
 package frc.robot;
@@ -18,6 +18,7 @@ import frc.robot.Action.ActionShooter;
 import frc.robot.Action.ActionWait;
 import frc.robot.Action.ActionParallelAction;
 import frc.robot.Action.ActionTurnToAngle;
+import frc.robot.Action.ActionTurnToTarget;
 
 
 
@@ -47,9 +48,83 @@ public class Autonomous {
 		SmartDashboard.putNumber("taskNum", taskNum);
 	}
 	
+
+	public void add(Action action) {
+		arr.add(action);
+	}
+	
+	public void assembleDoNothing(){
+		arr.add(new ActionWait(9999));
+	}
+
+	//---------------------------  MAIN AUTOS ------------------------------------------
+
+	public void assemblePP_simpleShoot(){
+		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 15));
+	}
+
+	public void assembleLL_simpleShoot(){
+		arr.add(new ActionDriveStraightByEncoders(100000, 0.5, 10));	
+		arr.add(new ActionTurnToTarget(2.0));	
+		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.TRENCH_RUN, 10));
+	}
+
+	public void assembleRR_simpleShoot(){
+		arr.add(new ActionDriveStraightByEncoders(100000, 0.5, 10));	
+		arr.add(new ActionTurnToTarget(2.0));	
+		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.TRENCH_RUN, 10));
+	}
+
+	public void assemblePP_shootFoward(){
+		arr.add(new ActionParallelAction(new ActionIndexer(10), new ActionShooter(true, 200, 10)));
+		arr.add(new ActionDriveStraightByEncoders(2, 0.2, 10));	
+	}
+
+	public void assemblePP_shootBackward(){
+
+		arr.add(new ActionShooter(true, 20, 20));
+		arr.add(new ActionDriveStraightByEncoders(-2, 0.2, 10));
+		
+	}
+
+	public void assemblePP_shootTrench(){
+		arr.add(new ActionShooter(true,20, 20));
+		arr.add(new ActionDriveStraightByEncoders(5, 0.2, 15));
+	}
+
+
+		//---------------------------  OTHER AUTOS ------------------------------------------
+
+	public void assembleLL_drivePPShoot(){
+		arr.add(new ActionDriveStraightByEncoders(2, 0.2, 15));
+		arr.add(new ActionParallelAction(new ActionShooter(true, 200, 10) , new ActionIndexer(10)));
+	}
+
+
+	public void assembleLL_midDriveShoot(){
+		arr.add(new ActionDriveStraightByEncoders(1, 0.2, 15));
+		arr.add(new ActionParallelAction(new ActionShooter(true, 200 , 10) , new ActionIndexer(10)));
+	}
+
+	public void assembleRR_ShootTrenchShoot(){
+		arr.add(new ActionShooter(true, 200, 20));
+		arr.add(new ActionDriveStraightByEncoders(5, 0.2, 10));		
+		arr.add(new ActionShooter(true, 200, 20));
+	}
+			
+	public void assembleRR_DrivePickShoot(){
+		arr.add(new ActionDriveStraightByEncoders(50, 0.5, 30));
+		//arr.add(new ActionParallelAction (new ActionShooter(200 , 10), new ActionIndexer(10) ));																																																																																																																														``````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````ActionParallelAction(new ActionShooter(20, 20), new ActionIndexer(20)));
+	}
 	
 	
-	
+
+	public void assembleRR_PPeload2DrivePickShoot() {
+		arr.add(new ActionIndexer(40));
+		arr.add(new ActionDriveStraightByEncoders(5, 0.2, 10));
+		arr.add(new ActionParallelAction(new ActionShooter(true, 20, 20), new ActionIndexer(20)));
+	}
+
 	public void testCode(){
 		arr.add(new ActionIntake(10));
 		arr.add(new ActionShooter(true, 2083, 23));
@@ -58,74 +133,6 @@ public class Autonomous {
 		arr.add(new ActionDriveStraightByEncoders(40, 0.5, 30));
 		arr.add(new ActionIndexer(24));
 		arr.add(new ActionTurnToAngle(40, 5.0f));			
-	}
-
-	
-	public void assembleDoNothing(){
-		arr.add(new ActionWait(9999));
-	}
-
-	public void assemblePR_justShoot(){
-		arr.add(new ActionParallelAction(new ActionIndexer(10), new ActionShooter(true, 200, 10)));
-	}
-
-	public void assemblePR_shootFoward(){
-		arr.add(new ActionParallelAction(new ActionIndexer(10), new ActionShooter(true, 200, 10)));
-		arr.add(new ActionDriveStraightByEncoders(2, 0.2, 10));	
-	}
-
-	public void assemblePR_shootBackward(){
-
-		arr.add(new ActionShooter(true, 20, 20));
-		arr.add(new ActionDriveStraightByEncoders(-2, 0.2, 10));
-		
-	}
-
-	public void assemblePR_shootTrench(){
-		arr.add(new ActionShooter(true,20, 20));
-		arr.add(new ActionDriveStraightByEncoders(5, 0.2, 15));
-	}
-
-
-	public void assembleLR_justShoot(){
-		arr.add(new ActionParallelAction(new ActionShooter(true, 200, 10), new ActionIndexer(10)));
-	}
-
-	public void assembleLR_drivePPShoot(){
-		arr.add(new ActionDriveStraightByEncoders(2, 0.2, 15));
-		arr.add(new ActionParallelAction(new ActionShooter(true, 200, 10) , new ActionIndexer(10)));
-	}
-
-
-	public void assembleLR_midDriveShoot(){
-		arr.add(new ActionDriveStraightByEncoders(1, 0.2, 15));
-		arr.add(new ActionParallelAction(new ActionShooter(true, 200 , 10) , new ActionIndexer(10)));
-	}
-
-	public void assembleRR_JustShoot(){
-		arr.add(new ActionShooter(true, 20, 5));	
-	}
-
-	public void assembleRR_ShootTrenchShoot(){
-		arr.add(new ActionShooter(true, 200, 20));
-		arr.add(new ActionDriveStraightByEncoders(5, 0.2, 10));		
-		arr.add(new ActionShooter(true, 200, 20));
-	}
-
-			
-	
-
-	public void assembleRR_DrivePickShoot(){
-		arr.add(new ActionDriveStraightByEncoders(50, 0.5, 30));
-		//arr.add(new ActionParallelAction (new ActionShooter(200 , 10), new ActionIndexer(10) ));																																																																																																																														``````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````ActionParallelAction(new ActionShooter(20, 20), new ActionIndexer(20)));
-	}
-	
-	
-
-	public void assembleRR_Preload2DrivePickShoot() {
-		arr.add(new ActionIndexer(40));
-		arr.add(new ActionDriveStraightByEncoders(5, 0.2, 10));
-		arr.add(new ActionParallelAction(new ActionShooter(true, 20, 20), new ActionIndexer(20)));
 	}
 	
 

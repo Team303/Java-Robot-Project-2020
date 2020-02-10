@@ -12,7 +12,13 @@ import frc.robot.OldRobot;
  * Add your docs here.
  */
 
-public class ActionTurnToTarget {
+public class ActionTurnToTarget implements Action {
+
+    double threshold = 2;
+
+    public ActionTurnToTarget(double threshold) {
+        this.threshold = threshold;
+    }
    
     public void run() {
         //Actual method is run from isFinished method

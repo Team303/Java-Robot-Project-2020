@@ -18,6 +18,12 @@ public class Camera {
 
 	}
 
+	public static final class VelocitySetpoint {
+		public static final int TRENCH_RUN = 10000;
+		public static final int INITIATION_LINE = 10000;
+
+	}
+
 
 	public void scoreWithVision(boolean seekRight) {
 		if (!OldRobot.limelight.hasValidContours()) {
@@ -62,10 +68,6 @@ public class Camera {
 	}
 
 
-	public static final class ShooterPresets {
-		public static final int TRENCH_RUN = 10000;
-		public static final int INITIATION_LINE = 10000;
-
-	}
+	
 
 }

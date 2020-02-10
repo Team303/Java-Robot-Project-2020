@@ -33,7 +33,6 @@ import java.nio.file.Paths;
  */
 public class Commands {
 
-
     private final Drivebase m_robotDrive = new Drivebase();
 
     public Command getAutonomousCommand() throws Exception {
@@ -90,8 +89,8 @@ public class Commands {
         );
 
 
-        //return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));
-        return null;
+        return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));
+        //return null;
     } 
 
 }

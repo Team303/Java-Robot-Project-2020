@@ -8,6 +8,7 @@
 package frc.robot.Action;
 
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Limelight;
 import frc.robot.OldRobot;
 import frc.robot.Robot;
 
@@ -18,16 +19,18 @@ public class ActionShooter implements Action{
     //makes varibles that will be for time stuff
     double timeout; 
     Timer t;
+    boolean limelight = false;
 
     public ActionShooter(boolean limelight, double setpoint, double timeout){
         t.start();
         this.timeout = timeout;
+        this.limelight = limelight;
         OldRobot.shooter.setSetpoint(setpoint);
-
     }
 
     @Override
     public void run() {
+        if (limelight) OldRobot.shooter.useVisionSetpoint();
         OldRobot.shooter.runPID();
     }
 

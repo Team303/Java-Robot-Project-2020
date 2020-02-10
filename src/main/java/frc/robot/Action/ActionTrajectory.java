@@ -12,17 +12,21 @@ package frc.robot.Action;
  */
 public class ActionTrajectory {
 
-    public ActionTrajectory() {
+    String trajectoryName = "";
+    int timeout = 15;
 
+    public ActionTrajectory(String trajectoryName, int timeout) {
+        this.trajectoryName = trajectoryName;
+        this.timeout = timeout;
     }
 
     public void run() {
-
+        
     }
 
     public boolean isFinished() {
 
-        return false;
+        return true;
     }
 
 

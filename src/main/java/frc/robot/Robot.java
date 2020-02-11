@@ -49,6 +49,7 @@ public class Robot extends TimedRobot {
 		navX.navX.zeroYaw();		
 		commands = new Commands();
 
+		SmartDashboard.putNumber("Output Voltage", 0);
 		//Smart Dashboard Commands
 		SmartDashboard.putNumber("lP value", 0.0);
 		SmartDashboard.putNumber("lI value", 0.0);
@@ -134,6 +135,10 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		OI.update();
 		Robot.drivebase.periodic();
+		//double voltage = SmartDashboard.getNumber("Output Voltage", 0);
+		//Robot.drivebase.leftMaster.setVoltage(voltage);
+		//Robot.drivebase.rightMaster.setVoltage(voltage);
+
 		Robot.drivebase.drive(-OI.lY, -OI.rY);
 		
 	}

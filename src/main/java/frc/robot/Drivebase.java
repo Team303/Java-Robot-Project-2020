@@ -92,9 +92,9 @@ public class Drivebase extends SubsystemBase {
 	public void setOutputVolts(double left, double right) {
 		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
 		System.out.println("Local Diff" + (Math.abs(left) - Math.abs(right)));
-		//leftMaster.setVoltage(left * multiplier);
-		//rightMaster.setVoltage(-left *  multiplier);
-		drive(left/12.0, right/12.0);
+		leftMaster.setVoltage(left * multiplier);
+		rightMaster.setVoltage(right *  multiplier);
+		//drive(left/12.0, right/12.0);
 	}
 
 

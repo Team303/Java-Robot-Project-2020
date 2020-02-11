@@ -103,7 +103,7 @@ public class Drivebase extends SubsystemBase {
 	}
 
 	public int getRightEncoder() {
-		return rightMaster.getSelectedSensorPosition(0);
+		return -rightMaster.getSelectedSensorPosition(0);
 	
 	}
 

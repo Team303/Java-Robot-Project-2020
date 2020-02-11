@@ -92,7 +92,6 @@ public class Robot extends TimedRobot {
 		}
 
 		
-
 		autoCommand.schedule();
 		System.out.println("--------------START-------------");
 

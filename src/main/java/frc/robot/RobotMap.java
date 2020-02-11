@@ -29,16 +29,16 @@ public class RobotMap {
 	public static final boolean FRONT_LEFT_INV = false;
 	public static final boolean MIDDLE_LEFT_INV = false;
 	public static final boolean BACK_LEFT_INV = false;
-	public static final boolean FRONT_RIGHT_INV = false;
-	public static final boolean MIDDLE_RIGHT_INV = false;
-	public static final boolean BACK_RIGHT_INV = false;
+	public static final boolean FRONT_RIGHT_INV = true;
+	public static final boolean MIDDLE_RIGHT_INV = true;
+	public static final boolean BACK_RIGHT_INV = true;
 
-	public static final int INDEXER = -1;
-	public static final int INTAKE = -1;
-	public static final int MOTION_SENSOR = -1;
+	public static final int INDEXER = 10;
+	public static final int INTAKE = 10;
+	public static final int MOTION_SENSOR = 10;
 
-	public static final int SHOOTER = -1;
-	public static final int SHOOTER_SLAVE = -1;
+	public static final int SHOOTER = 10;
+	public static final int SHOOTER_SLAVE = 10;
 
 	public static final boolean SHOOTER_INV = false;
 	public static final boolean SHOOTER_SLAVE_INV = true;
@@ -47,10 +47,11 @@ public class RobotMap {
 	public static final int CONTROL_PANEL_MOTOR = -1;
 
 	//From Robot Characterization 
-	public static final double ksVolts = 0.843; 					
-	public static final double kvVoltSecondsPerMeter = 0.915;	
-	public static final double kaVoltSecondsSquaredPerMeter = 0.1; // characterization - 0.252
-	
+	public static final double ksVolts = 0.117; 					
+	public static final double kvVoltSecondsPerMeter = 2.25;	
+	public static final double kaVoltSecondsSquaredPerMeter = 0.225; 
+
+
 	public static final double kTrackWidthMeters = Units.inchesToMeters(23.75);
 	public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
 

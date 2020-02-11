@@ -25,96 +25,141 @@ import edu.wpi.first.wpilibj.Talon;
 
 public class Drivebase extends SubsystemBase {
 	
-	public WPI_TalonFX rightBack;
-	public WPI_TalonFX rightMiddle;
-	public WPI_TalonFX rightFront;
-	public WPI_TalonFX leftFront;
-	public WPI_TalonFX leftMiddle;
-	public WPI_TalonFX leftBack;
-
-	SpeedControllerGroup rightMotors;
-	SpeedControllerGroup leftMotors;
+	WPI_TalonFX leftMaster;
+	WPI_TalonFX rightMaster;
 	DifferentialDrive drive;
+
+	static private int PIDIDX = 0;
+
 
 	DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(0));
 	Pose2d pose = new Pose2d();
 
 	public Drivebase()  {
-		rightBack = new WPI_TalonFX(RobotMap.BACK_RIGHT);
-		rightMiddle = new WPI_TalonFX(RobotMap.MIDDLE_RIGHT);
-		rightFront = new WPI_TalonFX(RobotMap.FRONT_RIGHT);
-		leftBack = new WPI_TalonFX(RobotMap.BACK_LEFT);
-		leftMiddle = new WPI_TalonFX(RobotMap.MIDDLE_LEFT);
-		leftFront = new WPI_TalonFX(RobotMap.FRONT_LEFT);	
 		
-		//Reset to factory default settings
-		rightBack.configFactoryDefault();
-		rightMiddle.configFactoryDefault();
-		rightFront.configFactoryDefault();
-		leftBack.configFactoryDefault();
-		leftMiddle.configFactoryDefault();
-		leftFront.configFactoryDefault();
-
-		//Reset to coast mode
-		rightBack.setNeutralMode(NeutralMode.Coast);
-		rightMiddle.setNeutralMode(NeutralMode.Coast);
-		rightFront.setNeutralMode(NeutralMode.Coast);
-		leftBack.setNeutralMode(NeutralMode.Coast);
-		leftMiddle.setNeutralMode(NeutralMode.Coast);
-		leftFront.setNeutralMode(NeutralMode.Coast);
-				
-		rightMotors = new SpeedControllerGroup(rightBack, rightFront, rightMiddle);
-		leftMotors = new SpeedControllerGroup(leftFront, leftMiddle, leftBack);
-		drive = new DifferentialDrive(leftMotors, rightMotors);
+		leftMaster = new WPI_TalonFX(2);
+		leftMaster.setInverted(false);
+		leftMaster.setSensorPhase(false);
+		leftMaster.setNeutralMode(NeutralMode.Brake);
+	
+		rightMaster = new WPI_TalonFX(5);
+		rightMaster.setInverted(false);
+		rightMaster.setSensorPhase(false);
+		rightMaster.setNeutralMode(NeutralMode.Brake);
+	
+		WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
+		leftSlave0.setInverted(false);
+		leftSlave0.follow(leftMaster);
+		leftSlave0.setNeutralMode(NeutralMode.Brake);
+		WPI_TalonFX leftSlave1 = new WPI_TalonFX(4);
+		leftSlave1.setInverted(false);
+		leftSlave1.follow(leftMaster);
+		leftSlave1.setNeutralMode(NeutralMode.Brake);
+	
+		WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
+		rightSlave0.setInverted(false);
+		rightSlave0.follow(rightMaster);
+		rightSlave0.setNeutralMode(NeutralMode.Brake);
+		WPI_TalonFX rightSlave1 = new WPI_TalonFX(7);
+		rightSlave1.setInverted(false);
+		rightSlave1.follow(rightMaster);
+		rightSlave1.setNeutralMode(NeutralMode.Brake);
+	
+		drive = new DifferentialDrive(leftMaster, rightMaster);
+	
+		drive.setDeadband(0);
+	
+		leftMaster.configSelectedFeedbackSensor(
+			FeedbackDevice.IntegratedSensor,
+			PIDIDX, 10
+		);
 		
-		rightBack.setInverted(RobotMap.BACK_RIGHT_INV);
-		rightMiddle.setInverted(RobotMap.MIDDLE_RIGHT_INV);
-		rightFront.setInverted(RobotMap.FRONT_RIGHT_INV); 
-		leftBack.setInverted(RobotMap.BACK_LEFT_INV);
-		leftMiddle.setInverted(RobotMap.MIDDLE_LEFT_INV);
-		leftFront.setInverted(RobotMap.FRONT_LEFT_INV);
+		rightMaster.configSelectedFeedbackSensor(
+			FeedbackDevice.IntegratedSensor,
+			PIDIDX, 10
+		);
+		
+		leftMaster.setSelectedSensorPosition(0);
+		rightMaster.setSelectedSensorPosition(0);
 
-		 leftBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
-		leftFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
-		leftMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
-		rightBack.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
-		rightMiddle.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000);
-		rightFront.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 100000); 
+	
 	}
 	
 	public void drive(double left, double right) {
 		drive.tankDrive(left, right);
-
 	}
 
 	public void setOutputVolts(double left, double right) {
-
 		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
-
-		leftMotors.setVoltage(-left * multiplier);
-		rightMotors.setVoltage(right *  multiplier);
+		System.out.println("Local Diff" + (Math.abs(left) - Math.abs(right)));
+		//leftMaster.setVoltage(left * multiplier);
+		//rightMaster.setVoltage(-left *  multiplier);
+		drive(left/12.0, right/12.0);
 	}
 
-	public int[] getLeftEncoders() {
-		return new int[] { leftFront.getSelectedSensorPosition(0),
-			leftMiddle.getSelectedSensorPosition(0),
-			leftBack.getSelectedSensorPosition(0)};
+
+	public int getLeftEncoder() {
+		return leftMaster.getSelectedSensorPosition(0);
 	}
 
-	public int[] getRightEncoders() {
-		return new int[] { rightFront.getSelectedSensorPosition(0),
-			rightMiddle.getSelectedSensorPosition(0),
-			rightBack.getSelectedSensorPosition(0)};	
+	public int getRightEncoder() {
+		return rightMaster.getSelectedSensorPosition(0);
+	
 	}
 
 	public void zeroEncoders() {
-		leftFront.setSelectedSensorPosition(0, 0, 1000);
-		leftMiddle.setSelectedSensorPosition(0, 0, 1000);
-		leftBack.setSelectedSensorPosition(0, 0, 1000);
+		leftMaster.setSelectedSensorPosition(0, 0, 1000);
+		rightMaster.setSelectedSensorPosition(0, 0, 1000);
+
+	}
+
+	//-------------- TURN TO ANGLE ---------------------------
+	public double turnToAngle(double current, double intended, double tolerance) {
+		double slope45 = 0.0105;
+		double intercept45 = 0;
+		double slope90 = 0;
+		double intercept90 = 0;
+		double slope180 = 0;
+		double intercept180 = 0;
+
+		double distanceError = distanceBetweenAngles(current, intended);
+		double power = 0;
+
+		if (Math.abs(distanceError) <= 45) {
+			power = intercept45 + (slope45 * distanceError);
+		} else if (Math.abs(distanceError) <= 90) {
+			power = intercept90 + (slope90 * distanceError);
+		} else if (Math.abs(distanceError) <= 180) {
+			power = intercept180 + (slope180 * distanceError);
+		}
+
+		if (Math.abs(distanceError) <= tolerance) {
+			power = 0;
+		}
+
+		drive(Math.copySign(power, distanceError), -Math.copySign(power, distanceError));
+
+		return distanceError;
+
+	}
+
+	public static double distanceBetweenAngles(double current, double intended) {
+
+		double currentAct = (current >= 0) ? current: 360 - Math.abs(current);
+		double intendedAct = (intended >= 0) ? intended: 360 - Math.abs(intended);	
+
+		double rightDistance = 0;
+
+		if (intendedAct >= currentAct) {	
+			rightDistance = intendedAct - currentAct;
+		} else {
+			rightDistance = Math.abs(current) + Math.abs(intendedAct);
+		}
 		
-		rightFront.setSelectedSensorPosition(0, 0, 1000);
-		rightMiddle.setSelectedSensorPosition(0, 0, 1000);
-		rightBack.setSelectedSensorPosition(0, 0, 1000);
+		double leftDistance = Math.abs(360 - rightDistance);
+		
+		return (leftDistance <= rightDistance) ? -leftDistance : rightDistance;
+		
 	}
 
 	//--------------- UPDATE POSE METHODS---------------------
@@ -140,19 +185,19 @@ public class Drivebase extends SubsystemBase {
 	}
 
 	public double getLeftDistanceMeters() {
-		return leftFront.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
+		return leftMaster.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
 	}
 
 	public double getRightDistanceMeters() {
-		return -rightFront.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
+		return -rightMaster.getSelectedSensorPosition(0) * RobotMap.kEncoderConstant;
 	}
 
 	public double getLeftVelocity() {
-		return leftFront.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
+		return leftMaster.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
 	}
 
 	public double getRightVelocity() {
-		return -rightFront.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
+		return -rightMaster.getSelectedSensorVelocity(0) * RobotMap.kEncoderConstant * 10;
 	}
 	
 	public double getPoseX() {
@@ -162,16 +207,14 @@ public class Drivebase extends SubsystemBase {
 	public double getPoseY(){
 		return pose.getTranslation().getY();
 	}
+	
 
-
-	/* rightBack.set(ControlMode.PercentOutput, right);
+		/*rightBack.set(ControlMode.PercentOutput, right);
 		rightMiddle.set(ControlMode.PercentOutput, right);
 		rightFront.set(ControlMode.PercentOutput, right);
 		leftFront.set(ControlMode.PercentOutput, left);
 		leftMiddle.set(ControlMode.PercentOutput, left);
-		leftBack.set(ControlMode.PercentOutput, left); */
-
-
+		leftBack.set(ControlMode.PercentOutput, left);*/
 	
 	
 	

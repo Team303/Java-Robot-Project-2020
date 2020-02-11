@@ -28,11 +28,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class Robot extends TimedRobot {	
 
-	static NavX navX;
+	public static NavX navX;
 	public static Drivebase drivebase;
 	public static Commands commands;
 	public static Command autoCommand;
-	//public static Intake intake;
+	public static Limelight limelight;
+	public static Camera camera;
+	public static Intake intake;
+	public static Shooter shooter;
+	public static Axis axis;
 	
 
 	@Override
@@ -42,15 +46,14 @@ public class Robot extends TimedRobot {
 		Robot.drivebase.zeroEncoders();	
 		
 		navX = new NavX();
-		navX.navX.zeroYaw();
-		
+		navX.navX.zeroYaw();		
 		commands = new Commands();
 
 		//Smart Dashboard Commands
-		SmartDashboard.putNumber("lP value", 1.0);
+		SmartDashboard.putNumber("lP value", 0.0);
 		SmartDashboard.putNumber("lI value", 0.0);
 		SmartDashboard.putNumber("lD value", 0.0);
-		SmartDashboard.putNumber("rP value", 1.0);
+		SmartDashboard.putNumber("rP value", 0.0);
 		SmartDashboard.putNumber("rI value", 0.0);
 		SmartDashboard.putNumber("rD value", 0.0);
    
@@ -61,6 +64,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Max Velocity", 3.0);
         SmartDashboard.putNumber("Max Acceleration", 3.0);
 
+		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
 	}
 
 	@Override
@@ -71,11 +75,9 @@ public class Robot extends TimedRobot {
 		if (OI.lZ < 0.5) {
 			drivebase.zeroEncoders();
 			navX.zeroYaw();
-			
 		}
 		
 	}
-	
 
 	@Override
 	public void autonomousInit() {
@@ -88,7 +90,10 @@ public class Robot extends TimedRobot {
 			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
 		}
 
+		
+
 		autoCommand.schedule();
+		System.out.println("--------------START-------------");
 
 	}
 
@@ -99,7 +104,20 @@ public class Robot extends TimedRobot {
 	public void autonomousPeriodic() {	
 		Robot.drivebase.periodic();
 		CommandScheduler.getInstance().run();
+	
+
+		//System.out.println("X Pose: " + Robot.drivebase.getPoseX());
+		//System.out.println("Y Pose: " + Robot.drivebase.getPoseY());
+
+		System.out.println("LEFT PWR: " + Robot.drivebase.leftMaster.get());
+		//System.out.println("DIFFERENCE: " + (Robot.drivebase.leftMaster.getMotorOutputVoltage() - Math.abs(Robot.drivebase.rightMaster.getMotorOutputVoltage())));
+		//System.out.println("NavX: " + Robot.navX.getYaw());
+		//System.out.println("RIGHT PWR: " + Robot.drivebase.rightMaster.getMotorOutputVoltage());
+		System.out.println("-----------------------------");
+
 	}
+
+
 
 	/**
 	 * Run once during operator control
@@ -116,7 +134,6 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		OI.update();
 		Robot.drivebase.periodic();
-
 		Robot.drivebase.drive(-OI.lY, -OI.rY);
 		
 	}
@@ -124,12 +141,8 @@ public class Robot extends TimedRobot {
 	public void updateSmartDashboard() {
 		
 		//Encoder Values & NavX Yaw of all the wheels
-		SmartDashboard.putNumber("Left Front Encoder", Robot.drivebase.getLeftEncoders()[0]);
-		SmartDashboard.putNumber("Right Front Encoder", Robot.drivebase.getRightEncoders()[0]);
-		SmartDashboard.putNumber("Left Middle Encoder", Robot.drivebase.getLeftEncoders()[1]);
-		SmartDashboard.putNumber("Right Middle Encoder", Robot.drivebase.getRightEncoders()[1]);
-		SmartDashboard.putNumber("Left Back Encoder", Robot.drivebase.getLeftEncoders()[2]);
-		SmartDashboard.putNumber("Right Back Encoder", Robot.drivebase.getRightEncoders()[2]);		
+		SmartDashboard.putNumber("Left Encoder", Robot.drivebase.getLeftEncoder());
+		SmartDashboard.putNumber("Right Encoder", Robot.drivebase.getRightEncoder());
 		SmartDashboard.putNumber("NavX Yaw", Robot.navX.getYaw());
 
 		//Pose, Velocity, Distance Information

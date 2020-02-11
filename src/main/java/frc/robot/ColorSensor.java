@@ -98,10 +98,10 @@ public class ColorSensor{
         else{
             return allColors[stopIndex - 1];
         }
+
     }
 
     public RawColor getRawColor(){
-        //return a Raw Color object, which has int attributes for red, green, blue, and infrared
         return colorSensor.getRawColor();
     }
 
@@ -109,6 +109,7 @@ public class ColorSensor{
     {
         RawColor color = getRawColor();
         //These constants decide what is considered "full enough" or "empty enough" for a given value, since RGB values are 0 or 250
+
         final int FULL = 250;
         final int EMPTY = 5;
 

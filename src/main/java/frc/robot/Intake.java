@@ -30,24 +30,31 @@ public class Intake {
         intake = new CANSparkMax(RobotMap.INTAKE, CANSparkMaxLowLevel.MotorType.kBrushless);
         indexer = new CANSparkMax(RobotMap.INDEXER, CANSparkMaxLowLevel.MotorType.kBrushless);
         motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
-
     }
 
-    public  void control() {
+
+    public void control() {
         if (OI.lBtn[2]) {
-            intake.set(0.7);
+            setIntake(0.7);
         } else {
-            intake.set(0);
+            setIntake(0);
         }
 
         if (ballDetected()) {
-            indexer.set(0.5);
+            setIndexer(0.5);
         } else {
-            indexer.set(0);
+            setIndexer(0);
         }
 
     }
 
+    public void setIntake(double power) {
+        intake.set(power);
+    }
+
+    public void setIndexer(double power) {
+        indexer.set(power);
+    }
 
     public boolean ballDetected() {            
         double distance = motionSensor.getRange();

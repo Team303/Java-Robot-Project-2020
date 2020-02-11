@@ -8,19 +8,15 @@ package frc.robot;
 
 
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.CANPIDController;
 import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-public class Shooter{
 
+public class Shooter {
 	CANSparkMax shooter;
 	CANSparkMax shooterSlave;
 
@@ -58,7 +54,6 @@ public class Shooter{
 		shooterPID.setP(kP);
 		shooterPID.setI(kI);
 		shooterPID.setD(kD);
-		//shooterPID.setIZone(kIz);
 		shooterPID.setFF(kFF);
 		shooterPID.setOutputRange(kMinOutput, kMaxOutput);
 
@@ -66,22 +61,57 @@ public class Shooter{
 	
 	}
 	
+	/**
+	 * Runs continually to regulate the behavior of the shooter.
+	 */
 	public void control() {
-		shooterPID.setReference(setpoint, ControlType.kVelocity);
+
+		/*
+		if (OI.lBtn[5]) {
+			useVisionSetpoint();
+		} else if (OI.xBtnA){
+			setpoint = 0;
+		}*/
+
+		runPID();
 	}
-	
+
+	public void runPID() {
+		shooterPID.setReference(setpoint, ControlType.kVelocity);
+
+		double velocityThreshold  = 10000;
+		
+		if (shooterEncoder.getVelocity() >= velocityThreshold) {
+			Robot.intake.setIndexer(0.3);
+		} else {
+			Robot.intake.setIndexer(0);
+		}
+	}
+
+	public void useVisionSetpoint() {
+		setSetpoint(getSetpointFromDistance());
+	}
+
 	public void setSetpoint(double set) {
 		this.setpoint = set;
 	}
-	
+
+	public double getVelocity() {
+		return shooterEncoder.getVelocity() * RobotMap.kEncoderConstant * 10;
+	}
+		
 	public double getSpeed() {
 		return shooterEncoder.getVelocity();
+	}
+
+	public double getSetpointFromDistance() {
+		double intercept = 0;
+		double slope = 0;
+		return intercept + (slope * Robot.limelight.get2DDistance());
 	}
 	
 	/*public void resetI() {
 		shooter.clearIAccum();
 	}*/
-	
-
 	
 }

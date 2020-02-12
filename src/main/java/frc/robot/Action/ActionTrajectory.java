@@ -10,7 +10,7 @@ package frc.robot.Action;
 /**
  * Add your docs here.
  */
-public class ActionTrajectory {
+public class ActionTrajectory implements Action {
 
     String trajectoryName = "";
     int timeout = 15;

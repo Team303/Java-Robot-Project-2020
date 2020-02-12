@@ -8,7 +8,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.wpilibj.util.Units;
 
 public class RobotMap {
 
@@ -18,10 +17,9 @@ public class RobotMap {
 	public static final int PDP = 0;
 	
 
-	public static final int FRONT_LEFT = 2; 
-	public static final int MIDDLE_LEFT = 3; 
-	public static final int BACK_LEFT = 4; 
-
+	public static final int FRONT_LEFT = 2; //encoder on this talon
+	public static final int MIDDLE_LEFT = 3; //encoder on this talon
+	public static final int BACK_LEFT = 4; //encoder on this talon
 	public static final int FRONT_RIGHT = 5; 
 	public static final int MIDDLE_RIGHT = 6; 
 	public static final int BACK_RIGHT = 7;
@@ -29,35 +27,40 @@ public class RobotMap {
 	public static final boolean FRONT_LEFT_INV = false;
 	public static final boolean MIDDLE_LEFT_INV = false;
 	public static final boolean BACK_LEFT_INV = false;
-	public static final boolean FRONT_RIGHT_INV = true;
-	public static final boolean MIDDLE_RIGHT_INV = true;
-	public static final boolean BACK_RIGHT_INV = true;
+	public static final boolean FRONT_RIGHT_INV = false;
+	public static final boolean MIDDLE_RIGHT_INV = false;
+	public static final boolean BACK_RIGHT_INV = false;
 
-	public static final int INDEXER = 10;
-	public static final int INTAKE = 10;
-	public static final int MOTION_SENSOR = 10;
+	public static final int INDEXER = -1;
+	public static final int INTAKE = -1;
+	public static final int MOTION_SENSOR = -1;
 
-	public static final int SHOOTER = 10;
-	public static final int SHOOTER_SLAVE = 10;
+	public static final int SHOOTER = -1;
+	public static final int SHOOTER_SLAVE = -1;
+
+
+	// FROM ROBOT CHARACTERIZATION \\
+	public static final double ksVolts = 0.843; 					
+	public static final double kvVoltSecondsPerMeter = 0.915;	
+	public static final double kaVoltSecondsSquaredPerMeter = 0.1; // characterization - 0.252
+	
+	public static final double kTrackWidthMeters = 0.7874;
+	public static final DifferentialDriveKinematics kDriveKinematics = 
+		new DifferentialDriveKinematics(kTrackWidthMeters);
+
+	public static final int kEncoderCPR = 2350;
+	public static final double kWheelDiameterMeters = 0.1016;
+	public static final double kEncoderConstant =
+		(kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+
+
+	public static final int INTAKE_DEPLOY = 0;
+
+
+	public static final int CONTROL_PANEL_MOTOR = 0;
+
 
 	public static final boolean SHOOTER_INV = false;
-	public static final boolean SHOOTER_SLAVE_INV = true;
-
-	// FOR CONTROL PANEL 
-	public static final int CONTROL_PANEL_MOTOR = -1;
-
-	//From Robot Characterization 
-	public static final double ksVolts = 0.117; 					
-	public static final double kvVoltSecondsPerMeter = 2.25;	
-	public static final double kaVoltSecondsSquaredPerMeter = 0.225; 
-
-
-	public static final double kTrackWidthMeters = Units.inchesToMeters(23.75);
-	public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
-
-	public static final int kEncoderCPR = 20480;
-	public static final double kWheelDiameterMeters = Units.inchesToMeters(6.125);
-	public static final double kEncoderConstant = (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
 
 }

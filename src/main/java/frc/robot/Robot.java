@@ -26,9 +26,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
-public class Robot extends TimedRobot {	
+public class Robot extends TimedRobot {
+	public static enum Position {LEFT, RIGHT, PP};
+	public static enum Auto {DO_NOTHING, SHOOT_FORWARD, SHOOT_BACKWARD, SHOOT_TRENCH, TRENCH_SHOOT, GO_PP_SHOOT, GO_MID_SHOOT, GO_PP_SHOOT_TRENCH, GO_MID_SHOOT_TRENCH};
+
+
+	private SendableChooser<Position> positionChooser = new SendableChooser<>();
 
 	public static NavX navX;
+	public static Autonomous auto;
 	public static Drivebase drivebase;
 	public static Commands commands;
 	public static Command autoCommand;
@@ -38,10 +44,26 @@ public class Robot extends TimedRobot {
 	public static Shooter shooter;
 	public static Axis axis;
 	
+	private SendableChooser<Auto> autoChooser = new SendableChooser<>();
+
+	
 
 	@Override
 	public void robotInit() {
+
+		positionChooser.addObject("LEFT", Position.LEFT);
+		positionChooser.addObject("POWER PORT", Position.PP);
+		positionChooser.addObject("RIGHT", Position.RIGHT);
+
+		for(Auto auto : Auto.values()) {
+			autoChooser.addObject(auto.toString(), auto);
+			
+		}
 		
+		SmartDashboard.putData("Position", positionChooser);
+		SmartDashboard.putData("Autos", autoChooser);
+										
+
 		drivebase = new Drivebase();
 		Robot.drivebase.zeroEncoders();	
 		
@@ -66,6 +88,15 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Max Acceleration", 3.0);
 
 		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
+
+		
+		navX = new NavX();
+		commands = new Commands();
+		shooter = new Shooter();
+		intake = new Intake();
+		drivebase = new Drivebase();
+		auto = new Autonomous();
+		camera = new Camera();
 	}
 
 	@Override
@@ -85,15 +116,89 @@ public class Robot extends TimedRobot {
 		Robot.drivebase.zeroEncoders();
 		Robot.drivebase.reset();
 
+
 		try{
 			autoCommand = commands.getAutonomousCommand();
 		} catch (Exception e) {
 			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
 		}
 
+		Position position = positionChooser.getSelected();
 		
+		if (position == Position.LEFT) {
+			assembleLeftAutos();			
+		}
+		else if (position == Position.RIGHT) {
+			assembleRightAutos();
+		}
+		else if (position == Position.PP) {
+			assemblePPAutos();
+		}
 		autoCommand.schedule();
 		System.out.println("--------------START-------------");
+
+	}
+	public void assembleLeftAutos() {
+		Auto selected = autoChooser.getSelected();
+		
+		if (selected == Auto.SHOOT_FORWARD) {			
+			auto.assembleLL_shootForward();
+		}
+		else if (selected == Auto.SHOOT_BACKWARD) {
+			auto.assembleLL_shootBackward();
+		}
+		else if (selected == Auto.GO_MID_SHOOT) {
+			auto.assembleLL_driveMidShoot();
+		}
+		else if(selected == Auto.GO_MID_SHOOT_TRENCH){
+			auto.assembleLL_driveMidShootTrench();
+		}
+		else if(selected == Auto.GO_PP_SHOOT){
+			auto.assembleLL_drivePPShoot();
+		}
+		else if(selected == Auto.GO_PP_SHOOT_TRENCH){
+			auto.assembleLL_drivePPShootTrench();
+		}
+		else if(selected == Auto.DO_NOTHING) {
+			auto.assembleDoNothing();
+		}	
+		
+		
+	}
+	public void assembleRightAutos() {
+		Auto selected = autoChooser.getSelected();
+
+		if (selected == Auto.SHOOT_FORWARD) {			
+			auto.assembleRR_shootForward();
+		}
+		else if (selected == Auto.SHOOT_BACKWARD) {
+			auto.assembleRR_shootBackward();
+		}
+		else if (selected == Auto.TRENCH_SHOOT) {
+			auto.assembleRR_driveTrenchShoot();
+		}	
+		else if (selected == Auto.SHOOT_TRENCH) {
+			auto.assembleRR_shootTrenchShoot();
+		}
+		else if (selected == Auto.DO_NOTHING) {
+			auto.assembleDoNothing();
+		}	
+	}
+	public void assemblePPAutos() {
+		Auto selected = autoChooser.getSelected();
+
+		if (selected == Auto.SHOOT_FORWARD) {			
+			auto.assemblePP_shootFoward();
+		}
+		else if (selected == Auto.SHOOT_BACKWARD) {
+			auto.assemblePP_shootBackward();
+		}	
+		else if (selected == Auto.SHOOT_TRENCH) {
+			auto.assemblePP_shootTrench();
+		}
+		else if (selected == Auto.DO_NOTHING) {
+			auto.assembleDoNothing();
+		}	
 
 	}
 
@@ -101,7 +206,9 @@ public class Robot extends TimedRobot {
 	 * This function is called periodically during autonomous
 	 */
 	@Override
-	public void autonomousPeriodic() {	
+	public void autonomousPeriodic() {
+		
+		auto.run(); 
 		Robot.drivebase.periodic();
 		CommandScheduler.getInstance().run();
 	
@@ -116,6 +223,7 @@ public class Robot extends TimedRobot {
 		System.out.println("-----------------------------");
 
 	}
+
 
 
 

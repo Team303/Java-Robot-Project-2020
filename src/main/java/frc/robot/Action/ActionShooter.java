@@ -28,6 +28,8 @@ public class ActionShooter implements Action{
         Robot.shooter.setSetpoint(setpoint);
     }
 
+    
+
     @Override
     public void run() {
         if (limelight) Robot.shooter.useVisionSetpoint();

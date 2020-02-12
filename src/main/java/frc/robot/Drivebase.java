@@ -92,9 +92,9 @@ public class Drivebase extends SubsystemBase {
 	public void setOutputVolts(double left, double right) {
 		double multiplier = SmartDashboard.getNumber("Trajectory Multiplier", 1.0);
 		System.out.println("Local Diff" + (Math.abs(left) - Math.abs(right)));
-		leftMaster.setVoltage(left * multiplier);
-		rightMaster.setVoltage(right *  multiplier);
-		//drive(left/12.0, right/12.0);
+		//leftMaster.setVoltage(left * multiplier);
+		//rightMaster.setVoltage(-right *  multiplier);
+		drive(left/12.0, right/12.0);
 	}
 
 
@@ -115,17 +115,28 @@ public class Drivebase extends SubsystemBase {
 
 	//-------------- TURN TO ANGLE ---------------------------
 	public double turnToAngle(double current, double intended, double tolerance) {
-		double slope45 = 0.0105;
-		double intercept45 = 0;
+		// double slope45 = 0.0105;
+		// double intercept45 = 0;
+		// double slope90 = 0;
+		// double intercept90 = 0;
+		// double slope180 = 0;
+		// double intercept180 = 0;
+
+		double slope45 = 0.00628212;
+		double intercept45 = 0.27	; // 0.25
 		double slope90 = 0;
 		double intercept90 = 0;
 		double slope180 = 0;
 		double intercept180 = 0;
 
+		//y = mx + b
+		//m = 0.00628212
+		//y = 0.00628212 (x) + 0.25
+
 		double distanceError = distanceBetweenAngles(current, intended);
 		double power = 0;
 
-		if (Math.abs(distanceError) <= 45) {
+		if (Math.abs(distanceError) <= 90) {
 			power = intercept45 + (slope45 * distanceError);
 		} else if (Math.abs(distanceError) <= 90) {
 			power = intercept90 + (slope90 * distanceError);

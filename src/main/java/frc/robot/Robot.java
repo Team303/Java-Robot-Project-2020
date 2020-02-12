@@ -62,10 +62,14 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
         SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
 
-        SmartDashboard.putNumber("Max Velocity", 3.0);
-        SmartDashboard.putNumber("Max Acceleration", 3.0);
+        SmartDashboard.putNumber("Max Velocity", 2.5);
+        SmartDashboard.putNumber("Max Acceleration", 2.0);
 
 		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
+
+		SmartDashboard.putNumber("Rotation Power", 0);
+
+		SmartDashboard.putBoolean("Test Bool", false);
 	}
 
 	@Override
@@ -133,12 +137,28 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		OI.update();
-		Robot.drivebase.periodic();
+
+		Robot.drivebase.turnToAngle(Robot.navX.getYaw(), 85, 2);
+		/*Robot.drivebase.periodic();
 		//double voltage = SmartDashboard.getNumber("Output Voltage", 0);
 		//Robot.drivebase.leftMaster.setVoltage(voltage);
-		//Robot.drivebase.rightMaster.setVoltage(voltage);
+		//Robot.drivebase.rightMaster.setVoltage(-voltage);
 
-		Robot.drivebase.drive(-OI.lY, -OI.rY);
+		//Robot.drivebase.drive(-OI.lY, -OI.rY);
+
+
+		boolean testBool = SmartDashboard.getBoolean("Test Bool", false);
+
+		double pow = SmartDashboard.getNumber("Rotation Power", 0);
+		if (!testBool){
+			Robot.drivebase.drive(pow, -pow);
+		}
+		else if (testBool) {
+			Robot.drivebase.drive(-pow, -pow);
+		}*/
+		
+
+		
 		
 	}
 

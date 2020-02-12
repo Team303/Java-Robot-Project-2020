@@ -26,7 +26,7 @@ public class ActionIntakeDeploy implements Action {
 
     @Override
     public void run() {
-        Robot.intake.deploy(state);
+        //Robot.intake.deploy(state);
     }
 
     @Override

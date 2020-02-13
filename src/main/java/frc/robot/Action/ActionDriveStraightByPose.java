@@ -44,8 +44,8 @@ public class ActionDriveStraightByPose implements Action {
 
         double pow[] = new double[10];
 
-        if (Math.abs(yError) <= 0.3) {
-            pow = Action.driveStraight(power, Math.toDegrees(Math.atan(1.0/Math.abs(yError))), 0.005);
+        if (Math.abs(yError) >= 0.3) {
+            pow = Action.driveStraight(power, Math.toDegrees(Math.atan(yError / 1.5)), -0.005);
         } else {
             pow = Action.driveStraight(power, Robot.navX.getYaw(), 0.005);
         }

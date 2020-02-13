@@ -47,17 +47,15 @@ public class Robot extends TimedRobot {
 	private SendableChooser<Auto> autoChooser = new SendableChooser<>();
 
 	
-
 	@Override
 	public void robotInit() {
 
-		positionChooser.addObject("LEFT", Position.LEFT);
-		positionChooser.addObject("POWER PORT", Position.PP);
-		positionChooser.addObject("RIGHT", Position.RIGHT);
+		positionChooser.addObject("Left", Position.LEFT);
+		positionChooser.addObject("Power Port", Position.PP);
+		positionChooser.addObject("Right", Position.RIGHT);
 
 		for(Auto auto : Auto.values()) {
 			autoChooser.addObject(auto.toString(), auto);
-			
 		}
 		
 		SmartDashboard.putData("Position", positionChooser);
@@ -70,6 +68,15 @@ public class Robot extends TimedRobot {
 		navX = new NavX();
 		navX.navX.zeroYaw();		
 		commands = new Commands();
+        
+		/*
+    commands = new Commands();
+		shooter = new Shooter();
+		intake = new Intake();
+		drivebase = new Drivebase();
+		auto = new Autonomous();
+		camera = new Camera();
+		SmartDashboard.putNumber("Rotation Power", 0);*/
 
 		SmartDashboard.putNumber("Output Voltage", 0);
 		//Smart Dashboard Commands
@@ -80,23 +87,14 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("rI value", 0.0);
 		SmartDashboard.putNumber("rD value", 0.0);
    
-        SmartDashboard.putNumber("kS", RobotMap.ksVolts);
-        SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
-        SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
-
-        SmartDashboard.putNumber("Max Velocity", 3.0);
-        SmartDashboard.putNumber("Max Acceleration", 3.0);
+    SmartDashboard.putNumber("kS", RobotMap.ksVolts);
+    SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
+    SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter)
+    SmartDashboard.putNumber("Max Velocity", 2.5);
+    SmartDashboard.putNumber("Max Acceleration", 2.0);
 
 		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
-
-		
-		navX = new NavX();
-		commands = new Commands();
-		shooter = new Shooter();
-		intake = new Intake();
-		drivebase = new Drivebase();
-		auto = new Autonomous();
-		camera = new Camera();
+		SmartDashboard.putBoolean("Test Bool", false);
 	}
 
 	@Override
@@ -120,7 +118,7 @@ public class Robot extends TimedRobot {
 		try{
 			autoCommand = commands.getAutonomousCommand();
 		} catch (Exception e) {
-			System.out.println("CANNOT MAKE AUTONMOUS COMMAND");
+			System.out.println("Cannot Make Autonomous Command");
 		}
 
 		Position position = positionChooser.getSelected();
@@ -211,11 +209,7 @@ public class Robot extends TimedRobot {
 		auto.run(); 
 		Robot.drivebase.periodic();
 		CommandScheduler.getInstance().run();
-	
-
-		//System.out.println("X Pose: " + Robot.drivebase.getPoseX());
-		//System.out.println("Y Pose: " + Robot.drivebase.getPoseY());
-
+    
 		System.out.println("LEFT PWR: " + Robot.drivebase.leftMaster.get());
 		//System.out.println("DIFFERENCE: " + (Robot.drivebase.leftMaster.getMotorOutputVoltage() - Math.abs(Robot.drivebase.rightMaster.getMotorOutputVoltage())));
 		//System.out.println("NavX: " + Robot.navX.getYaw());
@@ -223,9 +217,6 @@ public class Robot extends TimedRobot {
 		System.out.println("-----------------------------");
 
 	}
-
-
-
 
 	/**
 	 * Run once during operator control
@@ -241,13 +232,22 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		OI.update();
-		Robot.drivebase.periodic();
-		//double voltage = SmartDashboard.getNumber("Output Voltage", 0);
-		//Robot.drivebase.leftMaster.setVoltage(voltage);
-		//Robot.drivebase.rightMaster.setVoltage(voltage);
 
+		Robot.drivebase.turnToAngle(Robot.navX.getYaw(), 85, 2);
+		Robot.drivebase.periodic();
 		Robot.drivebase.drive(-OI.lY, -OI.rY);
-		
+
+    
+    /*
+		boolean testBool = SmartDashboard.getBoolean("Test Bool", false);
+
+		double pow = SmartDashboard.getNumber("Rotation Power", 0);
+		if (!testBool){
+			Robot.drivebase.drive(pow, -pow);
+		}
+		else if (testBool) {
+			Robot.drivebase.drive(-pow, -pow);
+		}*/
 	}
 
 	public void updateSmartDashboard() {

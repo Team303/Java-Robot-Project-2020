@@ -57,19 +57,20 @@ public class Commands {
         .setKinematics(RobotMap.kDriveKinematics);
         //.addConstraint(autoVoltageConstraint);
     
-        /*
-        Trajectory trajectory = null;
+        
+       /* Trajectory trajectory = null;
 
         try {
-                trajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/output/Straight.wpilib.json"));
+                trajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/output/Test.wpilib.json"));
         } catch(Exception e){
             System.out.println("Path not found.");
-        } */ 
+        } */
 
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             List.of(
                 new Pose2d(0,0,Rotation2d.fromDegrees(0)),
-                new Pose2d(3,0,Rotation2d.fromDegrees(0))
+                //new Pose2d(0.837,0.893,Rotation2d.fromDegrees(56.505)),
+                new Pose2d(1.617,1.773,Rotation2d.fromDegrees(0))
             ),
             config
         );

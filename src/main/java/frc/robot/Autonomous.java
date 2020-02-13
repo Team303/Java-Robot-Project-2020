@@ -76,11 +76,12 @@ public class Autonomous {
 	
 
 	public void assemblePP_shootTrench(){
-		arr.add(new ActionParallelAction(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 15), 
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10), 
 			new ActionIntakeDeploy(true)));
 		arr.add(new ActionTrajectory("PP_Trench", 15));
 		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
 		arr.add(new ActionParallelAction(new ActionDriveStraightByEncoders(10000, 0.3, 15.0), new ActionIntake(15.0)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
 		arr.add(new ActionDriveStraightByEncoders(-10000, 0.5, 15.0));
 		arr.add(new ActionTurnToTarget(ANGLE_THRESHOLD));
 		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.TRENCH_RUN, 15.0));

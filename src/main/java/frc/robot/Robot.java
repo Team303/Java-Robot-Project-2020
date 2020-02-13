@@ -67,10 +67,10 @@ public class Robot extends TimedRobot {
 		camera = new Camera();
 		SmartDashboard.putNumber("Rotation Power", 0);*/
 
-		SmartDashboard.putNumber("lP value", 0.0);
+		SmartDashboard.putNumber("lP value", 0.0); //1.0 but maybe not
 		SmartDashboard.putNumber("lI value", 0.0);
 		SmartDashboard.putNumber("lD value", 0.0);
-		SmartDashboard.putNumber("rP value", 0.0);
+		SmartDashboard.putNumber("rP value", 0.0); //1.0 but maybe not
 		SmartDashboard.putNumber("rI value", 0.0);
 		SmartDashboard.putNumber("rD value", 0.0);
    

@@ -24,6 +24,8 @@ public class Shooter {
 	CANEncoder	shooterEncoder;
 	int count = 0;
 
+	boolean shooterRunning;
+
 	double setpoint = 0;
 	
 	static final double maxFeedError = 0.15; //.15
@@ -58,6 +60,8 @@ public class Shooter {
 		shooterPID.setOutputRange(kMinOutput, kMaxOutput);
 
 		setpoint = 0;
+
+		shooterRunning = false;
 	
 	}
 	
@@ -82,9 +86,13 @@ public class Shooter {
 		double velocityThreshold  = 10000;
 		
 		if (shooterEncoder.getVelocity() >= velocityThreshold) {
+			shooterRunning = true;
 			Robot.intake.setIndexer(0.3);
 		} else {
-			Robot.intake.setIndexer(0);
+			if (shooterRunning)  {
+				Robot.intake.indexer.set(0);
+				shooterRunning = false;
+			}
 		}
 	}
 

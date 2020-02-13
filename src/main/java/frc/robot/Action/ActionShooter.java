@@ -43,6 +43,7 @@ public class ActionShooter implements Action{
 
         if(end){
             Robot.shooter.setSetpoint(0);
+            Robot.shooter.runPID();
             t.stop();
             t.reset();
         }

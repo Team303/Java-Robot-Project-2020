@@ -21,45 +21,56 @@ import edu.wpi.first.wpilibj.Solenoid;
  * Add your docs here.
  */
 public class Intake {
-    //making the variables
+
     public CANSparkMax intake;
     public CANSparkMax indexer;
     public TimeOfFlight motionSensor;
-   public Solenoid deploy;
-   
+    public Solenoid deploy;
 
 
 
     public Intake(){
-        // setting all the varibles
-        deploy = new Solenoid(RobotMap.INTAKE_DEPLOY);
+        deploy = new Solenoid(RobotMap.INTAKE_PISTON);
         intake = new CANSparkMax(RobotMap.INTAKE, CANSparkMaxLowLevel.MotorType.kBrushless);
         indexer = new CANSparkMax(RobotMap.INDEXER, CANSparkMaxLowLevel.MotorType.kBrushless);
         motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
+
+
     }
 
 
     public void control() {
         if (OI.lBtn[2]) {
-            setIntake(0.7);
+            intakeControl(0.5);
         } else {
-            setIntake(0);
+            intakeControl(0);
         }
 
+    }
+
+    public void intakeControl(double power) {
+
+        intake.set(power);
+
+
         if (ballDetected()) {
-            setIndexer(0.5);
+            setIndexer(0.3);
         } else {
             setIndexer(0);
         }
-
-    }
-
-    public void setIntake(double power) {
-        intake.set(power);
+        
     }
 
     public void setIndexer(double power) {
-        indexer.set(power);
+
+        if (power == 0 && Robot.shooter.shooterRunning) {
+            //Do Nothing
+        } else if (power == 0 && !Robot.shooter.shooterRunning){
+            indexer.set(0);
+        } else {
+            indexer.set(power);
+        }
+
     }
 
     public boolean ballDetected() {            

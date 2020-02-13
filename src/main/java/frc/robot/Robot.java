@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Action.ActionWait;
 
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class Robot extends TimedRobot {
 	public static enum Position {LEFT, RIGHT, PP};
-	public static enum Auto {DO_NOTHING, SHOOT_FORWARD, SHOOT_BACKWARD, SHOOT_TRENCH, TRENCH_SHOOT, GO_PP_SHOOT, GO_MID_SHOOT, GO_PP_SHOOT_TRENCH, GO_MID_SHOOT_TRENCH};
+	public static enum Auto {DO_NOTHING, SHOOT_FORWARD, SHOOT_BACKWARD, SHOOT_TRENCH, GO_PP_SHOOT, GO_MID_SHOOT, GO_PP_SHOOT_TRENCH, GO_MID_SHOOT_TRENCH};
 
 
 	private SendableChooser<Position> positionChooser = new SendableChooser<>();
@@ -48,19 +49,7 @@ public class Robot extends TimedRobot {
 
 	
 	@Override
-	public void robotInit() {
-
-		positionChooser.addObject("Left", Position.LEFT);
-		positionChooser.addObject("Power Port", Position.PP);
-		positionChooser.addObject("Right", Position.RIGHT);
-
-		for(Auto auto : Auto.values()) {
-			autoChooser.addObject(auto.toString(), auto);
-		}
-		
-		SmartDashboard.putData("Position", positionChooser);
-		SmartDashboard.putData("Autos", autoChooser);
-										
+	public void robotInit() {										
 
 		drivebase = new Drivebase();
 		Robot.drivebase.zeroEncoders();	
@@ -70,7 +59,7 @@ public class Robot extends TimedRobot {
 		commands = new Commands();
         
 		/*
-    commands = new Commands();
+    	commands = new Commands();
 		shooter = new Shooter();
 		intake = new Intake();
 		drivebase = new Drivebase();
@@ -78,8 +67,6 @@ public class Robot extends TimedRobot {
 		camera = new Camera();
 		SmartDashboard.putNumber("Rotation Power", 0);*/
 
-		SmartDashboard.putNumber("Output Voltage", 0);
-		//Smart Dashboard Commands
 		SmartDashboard.putNumber("lP value", 0.0);
 		SmartDashboard.putNumber("lI value", 0.0);
 		SmartDashboard.putNumber("lD value", 0.0);
@@ -87,14 +74,27 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("rI value", 0.0);
 		SmartDashboard.putNumber("rD value", 0.0);
    
-    SmartDashboard.putNumber("kS", RobotMap.ksVolts);
-    SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
-    SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter)
-    SmartDashboard.putNumber("Max Velocity", 2.5);
-    SmartDashboard.putNumber("Max Acceleration", 2.0);
+    	SmartDashboard.putNumber("kS", RobotMap.ksVolts);
+    	SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
+    	SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
+    	SmartDashboard.putNumber("Max Velocity", 2.5);
+    	SmartDashboard.putNumber("Max Acceleration", 2.0);
 
 		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
 		SmartDashboard.putBoolean("Test Bool", false);
+
+		positionChooser.addOption("Left", Position.LEFT);
+		positionChooser.addOption("Power Port", Position.PP);
+		positionChooser.addOption("Right", Position.RIGHT);
+
+		positionChooser.addOption("Left", Position.LEFT);
+
+		for(Auto auto : Auto.values()) {
+			autoChooser.addOption(auto.toString(), auto);
+		}
+		
+		SmartDashboard.putData("Position", positionChooser);
+		SmartDashboard.putData("Autos", autoChooser);
 	}
 
 	@Override
@@ -114,50 +114,61 @@ public class Robot extends TimedRobot {
 		Robot.drivebase.zeroEncoders();
 		Robot.drivebase.reset();
 
-
 		try{
 			autoCommand = commands.getAutonomousCommand();
 		} catch (Exception e) {
 			System.out.println("Cannot Make Autonomous Command");
 		}
 
+		autoCommand.schedule();
+
 		Position position = positionChooser.getSelected();
 		
 		if (position == Position.LEFT) {
 			assembleLeftAutos();			
-		}
-		else if (position == Position.RIGHT) {
+		} else if (position == Position.RIGHT) {
 			assembleRightAutos();
-		}
-		else if (position == Position.PP) {
+		} else if (position == Position.PP) {
 			assemblePPAutos();
 		}
-		autoCommand.schedule();
-		System.out.println("--------------START-------------");
+
+		System.out.println("--------------START AUTO-------------");
 
 	}
+
+
+
+	public void assemblePPAutos() {
+		Auto selected = autoChooser.getSelected();
+
+		if (selected == Auto.SHOOT_FORWARD) {			
+			auto.assemblePP_shootFoward();
+		} else if (selected == Auto.SHOOT_BACKWARD) {
+			auto.assemblePP_shootBackward();
+		} else if (selected == Auto.SHOOT_TRENCH) {
+			auto.assemblePP_shootTrench();
+		} else if (selected == Auto.DO_NOTHING) {
+			auto.assembleDoNothing();
+		}	
+
+	}
+
 	public void assembleLeftAutos() {
 		Auto selected = autoChooser.getSelected();
 		
 		if (selected == Auto.SHOOT_FORWARD) {			
 			auto.assembleLL_shootForward();
-		}
-		else if (selected == Auto.SHOOT_BACKWARD) {
+		} else if (selected == Auto.SHOOT_BACKWARD) {
 			auto.assembleLL_shootBackward();
-		}
-		else if (selected == Auto.GO_MID_SHOOT) {
+		} else if (selected == Auto.GO_MID_SHOOT) {
 			auto.assembleLL_driveMidShoot();
-		}
-		else if(selected == Auto.GO_MID_SHOOT_TRENCH){
+		} else if(selected == Auto.GO_MID_SHOOT_TRENCH){
 			auto.assembleLL_driveMidShootTrench();
-		}
-		else if(selected == Auto.GO_PP_SHOOT){
+		} else if(selected == Auto.GO_PP_SHOOT){
 			auto.assembleLL_drivePPShoot();
-		}
-		else if(selected == Auto.GO_PP_SHOOT_TRENCH){
+		} else if(selected == Auto.GO_PP_SHOOT_TRENCH){
 			auto.assembleLL_drivePPShootTrench();
-		}
-		else if(selected == Auto.DO_NOTHING) {
+		} else if(selected == Auto.DO_NOTHING) {
 			auto.assembleDoNothing();
 		}	
 		
@@ -168,37 +179,22 @@ public class Robot extends TimedRobot {
 
 		if (selected == Auto.SHOOT_FORWARD) {			
 			auto.assembleRR_shootForward();
-		}
-		else if (selected == Auto.SHOOT_BACKWARD) {
+		} else if (selected == Auto.SHOOT_BACKWARD) {
 			auto.assembleRR_shootBackward();
-		}
-		else if (selected == Auto.TRENCH_SHOOT) {
-			auto.assembleRR_driveTrenchShoot();
-		}	
-		else if (selected == Auto.SHOOT_TRENCH) {
+		} else if (selected == Auto.SHOOT_TRENCH) {
 			auto.assembleRR_shootTrenchShoot();
-		}
-		else if (selected == Auto.DO_NOTHING) {
+		} else if (selected == Auto.DO_NOTHING) {
 			auto.assembleDoNothing();
-		}	
-	}
-	public void assemblePPAutos() {
-		Auto selected = autoChooser.getSelected();
-
-		if (selected == Auto.SHOOT_FORWARD) {			
-			auto.assemblePP_shootFoward();
 		}
-		else if (selected == Auto.SHOOT_BACKWARD) {
-			auto.assemblePP_shootBackward();
-		}	
-		else if (selected == Auto.SHOOT_TRENCH) {
-			auto.assemblePP_shootTrench();
-		}
-		else if (selected == Auto.DO_NOTHING) {
-			auto.assembleDoNothing();
-		}	
 
+		auto.addAction(new ActionWait(999999));
+
+		/*else if (selected == Auto.TRENCH_SHOOT) {
+			auto.assembleRR_driveTrenchShoot();
+		}*/
+			
 	}
+
 
 	/**
 	 * This function is called periodically during autonomous
@@ -211,10 +207,10 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance().run();
     
 		System.out.println("LEFT PWR: " + Robot.drivebase.leftMaster.get());
-		//System.out.println("DIFFERENCE: " + (Robot.drivebase.leftMaster.getMotorOutputVoltage() - Math.abs(Robot.drivebase.rightMaster.getMotorOutputVoltage())));
-		//System.out.println("NavX: " + Robot.navX.getYaw());
-		//System.out.println("RIGHT PWR: " + Robot.drivebase.rightMaster.getMotorOutputVoltage());
+		System.out.println("DIFFERENCE: " + (Robot.drivebase.leftMaster.getMotorOutputVoltage() - Math.abs(Robot.drivebase.rightMaster.getMotorOutputVoltage())));
 		System.out.println("-----------------------------");
+
+		//System.out.println("RIGHT PWR: " + Robot.drivebase.rightMaster.getMotorOutputVoltage());
 
 	}
 
@@ -233,10 +229,10 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		OI.update();
 
-		Robot.drivebase.turnToAngle(Robot.navX.getYaw(), 85, 2);
 		Robot.drivebase.periodic();
 		Robot.drivebase.drive(-OI.lY, -OI.rY);
 
+		//Robot.drivebase.turnToAngle(Robot.navX.getYaw(), 85, 2);
     
     /*
 		boolean testBool = SmartDashboard.getBoolean("Test Bool", false);

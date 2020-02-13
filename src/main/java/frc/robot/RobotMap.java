@@ -38,6 +38,10 @@ public class RobotMap {
 	public static final int SHOOTER = -1;
 	public static final int SHOOTER_SLAVE = -1;
 
+	public static final int INTAKE_PISTON = -1;
+	public static final int CONTROL_PANEL = -1;
+	public static final boolean SHOOTER_INV = false;
+
 
 	// FROM ROBOT CHARACTERIZATION \\
 	public static final double ksVolts = 0.843; 					
@@ -53,14 +57,6 @@ public class RobotMap {
 	public static final double kEncoderConstant =
 		(kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
-
-	public static final int INTAKE_DEPLOY = 0;
-
-
-	public static final int CONTROL_PANEL_MOTOR = 0;
-
-
-	public static final boolean SHOOTER_INV = false;
 
 
 }

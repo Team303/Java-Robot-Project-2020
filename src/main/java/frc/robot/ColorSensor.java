@@ -29,7 +29,7 @@ public class ColorSensor{
     }
     public ColorSensor(){
         colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
-        controlMotor = new CANSparkMax(RobotMap.CONTROL_PANEL_MOTOR, CANSparkMaxLowLevel.MotorType.kBrushless);
+        controlMotor = new CANSparkMax(RobotMap.CONTROL_PANEL, CANSparkMaxLowLevel.MotorType.kBrushless);
         // !REMINDER --> MAKE SURE TO SET MOTOR TO BRAKE
     }
 

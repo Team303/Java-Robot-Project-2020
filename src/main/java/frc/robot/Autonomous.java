@@ -76,7 +76,7 @@ public class Autonomous {
 	
 
 	public void assemblePP_shootTrench(){
-		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10), 
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_PP, 10), 
 			new ActionIntakeDeploy(true)));
 		arr.add(new ActionTrajectory("PP_Trench", 15));
 		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
@@ -88,13 +88,17 @@ public class Autonomous {
 }
 
 	public void assemblePP_shootFoward(){
-		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10));
-		arr.add(new ActionDriveStraightByEncoders(2, 0.2, 10));	
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_PP, 10), 
+			new ActionIntakeDeploy(true)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(200000, 0.2, 10));	
 	}
 
 	public void assemblePP_shootBackward(){
-		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10));
-		arr.add(new ActionDriveStraightByEncoders(-2, 0.2, 10));
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_PP, 10), 
+			new ActionIntakeDeploy(true)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-20000, 0.2, 10));
 	}
 	
 	
@@ -102,18 +106,23 @@ public class Autonomous {
 	
 	
 	public void assembleLL_shootForward(){
-		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10));
-		arr.add(new ActionDriveStraightByEncoders(2, 0.2, 15));	
+	arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_LEFT, 10), 
+		new ActionIntakeDeploy(true)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(20000, 0.2, 15));	
 	}
 
 
 	public void assembleLL_shootBackward(){
-		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10));
-		arr.add(new ActionDriveStraightByEncoders(-2, 0.2, 15));
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_LEFT,10), 
+			new ActionIntakeDeploy(true)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-20000, 0.2, 15));
 		
 	}
 
 	public void assembleLL_drivePPShoot(){
+		arr.add(new ActionIntakeDeploy());
 		arr.add(new ActionTrajectory("Left to PP", 10));
 		arr.add(new ActionTurnToTarget(2));
 		arr.add(new ActionShooter(true, 200, 10));
@@ -121,14 +130,22 @@ public class Autonomous {
 
 	
 	public void assembleLL_drivePPShootTrench(){
+		arr.add(new ActionIntakeDeploy());
 		arr.add(new ActionTrajectory("Left to PP", 10));
 		arr.add(new ActionTurnToTarget(2));
 		arr.add(new ActionShooter(true, 200, 10));
-		arr.add(new ActionParallelAction(new ActionTrajectory("PP to Trench", 10), new ActionIntake(10)));
+		arr.add(new ActionTrajectory("PP to Trench", 10));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionParallelAction(new ActionDriveStraightByEncoders(20000, 0.2,15 ), new ActionIntake(10)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-10000, 0.5, 15.0));
+		arr.add(new ActionTurnToTarget(ANGLE_THRESHOLD));
+		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.TRENCH_RUN, 15.0));
 	}
 
 	
 	public void assembleLL_driveMidShoot(){
+		arr.add(new ActionIntakeDeploy());
 		arr.add(new ActionTrajectory("Left to Middle", 10));
 		arr.add(new ActionTurnToTarget(2));
 		arr.add(new ActionShooter(true, 200, 10));
@@ -136,37 +153,59 @@ public class Autonomous {
 
 
 	public void assembleLL_driveMidShootTrench(){
+		arr.add(new ActionIntakeDeploy());
 		arr.add(new ActionTrajectory("Left to Middle", 10));
 		arr.add(new ActionTurnToTarget(2));
 		arr.add(new ActionShooter(true, 200, 10));
-		arr.add(new ActionParallelAction(new ActionTrajectory("Middle to Trench", 10), new ActionIntake(10)));
+		arr.add(new ActionTrajectory("Middle to Trench", 10));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionParallelAction(new ActionDriveStraightByEncoders(20000, 0.2, 25),new ActionIntake(10)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-10000, 0.5, 15.0));
+		arr.add(new ActionTurnToTarget(ANGLE_THRESHOLD));
+		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.TRENCH_RUN, 15.0));
 	}
 
 	
 //---------------------------------------------------Right----------------------------
 
 	public void assembleRR_shootForward(){
-		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10));
-		arr.add(new ActionDriveStraightByEncoders(1, 0.2, 15));
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_RIGHT, 10), 
+			new ActionIntakeDeploy(true)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(20000, 0.2, 15));
 	}
 
 	public void assembleRR_shootBackward(){
-		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE, 10));
-		arr.add(new ActionDriveStraightByEncoders(-1, 0.2, 15));
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_RIGHT, 10), 
+			new ActionIntakeDeploy(true)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-20000, 0.2, 15));
 	}
 
 public void assembleRR_shootTrenchShoot(){
-		arr.add(new ActionShooter(true, 200, 20));
-		arr.add(new ActionParallelAction(new ActionTrajectory("Right to Trench", 10), new ActionIntake(10)));		
+		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_RIGHT, 10), 
+			new ActionIntakeDeploy(true)));
+		arr.add(new ActionTrajectory("Right to Trench", 10));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionParallelAction(new ActionDriveStraightByEncoders(20000, 0.2, 15),new ActionIntake(10)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-10000, 0.5, 15.0));
+		arr.add(new ActionTurnToTarget(ANGLE_THRESHOLD));
 		arr.add(new ActionTurnToTarget(2));
-		arr.add(new ActionShooter(true, 200, 20));
+		arr.add(new ActionShooter(false, Camera.VelocitySetpoint.TRENCH_RUN, 15.0));
 	}
 
 	public void assembleRR_driveTrenchShoot(){
-		arr.add(new ActionParallelAction(new ActionTrajectory("Right to Trench", 10), new ActionIntake(10)));
+		arr.add(new ActionIntakeDeploy());
+		arr.add(new ActionTrajectory("Right to Trench", 10));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionParallelAction(new ActionDriveStraightByEncoders(10000, 0.2, 15),new ActionIntake(10)));
+		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
+		arr.add(new ActionDriveStraightByEncoders(-10000, 0.5, 15.0));
+		arr.add(new ActionTurnToTarget(ANGLE_THRESHOLD));
 		arr.add(new ActionTurnToTarget(2));
-		arr.add(new ActionShooter(true, 200, 20));
-		
+		arr.add(new ActionShooter(true, 200, 15.0));
 	}
 
 	public void addAction(Action action) {

@@ -33,7 +33,7 @@ public class ActionShooter implements Action{
     @Override
     public void run() {
         if (limelight) Robot.shooter.useVisionSetpoint();
-        Robot.shooter.runPID();
+        Robot.shooter.runShooter();
     }
 
 
@@ -43,7 +43,7 @@ public class ActionShooter implements Action{
 
         if(end){
             Robot.shooter.setSetpoint(0);
-            Robot.shooter.runPID();
+            Robot.shooter.runShooter();
             t.stop();
             t.reset();
         }

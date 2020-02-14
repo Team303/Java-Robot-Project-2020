@@ -32,7 +32,7 @@ public class Camera {
 		} else {
 			if (turnToTarget(2)) {
 				Robot.shooter.useVisionSetpoint();
-				Robot.shooter.runPID();
+				Robot.shooter.runShooter();
 			}
 		}
 	}

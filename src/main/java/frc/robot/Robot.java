@@ -95,6 +95,12 @@ public class Robot extends TimedRobot {
 		
 		SmartDashboard.putData("Position", positionChooser);
 		SmartDashboard.putData("Autos", autoChooser);
+
+		SmartDashboard.putNumber("Shooter P", 0.3);
+		SmartDashboard.putNumber("Shooter I", 0.0);
+		SmartDashboard.putNumber("Shooter D", 1.0);
+
+
 	}
 
 	@Override

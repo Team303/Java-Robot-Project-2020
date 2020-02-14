@@ -14,7 +14,9 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.controller.PIDController;
 
 public class Shooter {
 	CANSparkMax shooter;
@@ -25,8 +27,15 @@ public class Shooter {
 	int count = 0;
 
 	boolean shooterRunning;
-
 	double setpoint = 0;
+
+	SimpleMotorFeedforward shooterFeedforward;
+	PIDController pid;
+
+	public static final int GEARING = 1;
+	double encoderConstant = (1 / GEARING) * 1;
+
+
 	
 	static final double maxFeedError = 0.15; //.15
 	
@@ -45,10 +54,18 @@ public class Shooter {
 		shooterPID = shooter.getPIDController();
 		shooterEncoder = shooter.getEncoder();
 
-		double kP = 0.3;
-		double kI = 0.000003;
-		double kD = 1;
-		double kIz = 0;
+
+		double kP = SmartDashboard.getNumber("Shooter P", 0.3);
+		double kI = SmartDashboard.getNumber("Shooter I", 0.0);
+		double kD = SmartDashboard.getNumber("Shooter D", 1.0);
+
+		setpoint = 0;
+		shooterRunning = false;
+
+		shooterFeedforward = new SimpleMotorFeedforward(0,0,0);
+		pid = new PIDController(kP, kI, kD);
+
+		/*double kIz = 0;
 		double kFF = 0.02475;
 		double kMaxOutput = 1.0;
 		double kMinOutput = -1.0;
@@ -57,12 +74,8 @@ public class Shooter {
 		shooterPID.setI(kI);
 		shooterPID.setD(kD);
 		shooterPID.setFF(kFF);
-		shooterPID.setOutputRange(kMinOutput, kMaxOutput);
+		shooterPID.setOutputRange(kMinOutput, kMaxOutput);*/
 
-		setpoint = 0;
-
-		shooterRunning = false;
-	
 	}
 	
 	/**
@@ -77,11 +90,12 @@ public class Shooter {
 			setpoint = 0;
 		}*/
 
-		runPID();
+
+		//runShooter();
 	}
 
-	public void runPID() {
-		shooterPID.setReference(setpoint, ControlType.kVelocity);
+	public void runShooter() {
+		shooterPIDControl();
 
 		double velocityThreshold  = 10000;
 		
@@ -96,6 +110,13 @@ public class Shooter {
 		}
 	}
 
+	public void shooterPIDControl() {
+		double feedforward = shooterFeedforward.calculate(setpoint);
+		double voltage = feedforward + pid.calculate(getVelocity(), setpoint);
+		shooter.set(voltage / 12);
+	}
+
+
 	public void useVisionSetpoint() {
 		setSetpoint(getSetpointFromDistance());
 	}
@@ -105,7 +126,7 @@ public class Shooter {
 	}
 
 	public double getVelocity() {
-		return shooterEncoder.getVelocity() * RobotMap.kEncoderConstant * 10;
+		return shooterEncoder.getVelocity() * encoderConstant / 60.;
 	}
 		
 	public double getSpeed() {

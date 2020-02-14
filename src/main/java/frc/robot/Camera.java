@@ -20,7 +20,9 @@ public class Camera {
 
 	public static final class VelocitySetpoint {
 		public static final int TRENCH_RUN = 10000;
-		public static final int INITIATION_LINE = 10000;
+		public static final int INITIATION_LINE_PP = 10000;
+		public static final int INITIATION_LINE_RIGHT = 10000;
+		public static final int INITIATION_LINE_LEFT = 10000;
 
 	}
 

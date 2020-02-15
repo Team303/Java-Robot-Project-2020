@@ -58,5 +58,30 @@ public class RobotMap {
 		(kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 
 
+	
+	
+	public static final int CLIMBER = 0;
+	
+	public static final int CLIMBER_SLAVE = 0;
+
+	public static final int CLIMBER_FOWARD = 0;
+
+
+	public static final boolean CLIMBER_INV = false;
+
+
+	public static final boolean CLIMBER_SLAVE_INV = false;
+
+
+	public static final int LOW_SWITCH_SETPOINT = 0;
+
+
+	public static final int MID_SWITCH_SETPOINT = 0;
+
+
+	public static final int HIGH_SWITCH_SETPOINT = 0;
+	
+
+
 
 }

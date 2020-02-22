@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.ColorSensorV3.RawColor;
 
 import java.util.Arrays;
@@ -16,133 +17,130 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class ColorSensor{
     private final ColorSensorV3 colorSensor;
-    public CANSparkMax controlMotor; // motor for control panel movement
+    public CANSparkMax controlMotor;
+    public final ColorMatch colorMatcher = new ColorMatch();
 
-    private boolean rotateContinue;
+    private final Color kBlueTarget = ColorMatch.makeColor(0.143, 0.427, 0.429);
+    private final Color kGreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
+    private final Color kRedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
+    private final Color kYellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
 
-    enum Color
-    {
-        RED, GREEN, BLUE, YELLOW, NONE
+
+    enum FieldColor {
+        RED, GREEN, BLUE, YELLOW, NONE, UNKOWN
     }
+
     public ColorSensor(){
         colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
         controlMotor = new CANSparkMax(RobotMap.CONTROL_PANEL, CANSparkMaxLowLevel.MotorType.kBrushless);
-        // !REMINDER --> MAKE SURE TO SET MOTOR TO BRAKE
+        controlMotor.setIdleMode(IdleMode.kBrake);
     }
 
-    // Functioning Methods ------------------------------------------------------------------------
     public void rotationControl(){
-        rotateContinue = true; // checks if motor should continue rotations
-        Color startColor = getColor(); // gets the starting color that should be rotated to
-        boolean onColor = true; // checks if sensor is currently on the required color
-        boolean start = true; // checks if sensor is still on start color
-        int rotations = 0; // how many rotations have been done, the motor will stop right after 3
+        FieldColor startColor = getCurrentColor(); 
+        boolean onStartColor = true; 
+        boolean started = false; 
+        int rotations = 0; 
         
-        while (rotations < 6){
-            if (start){ 
+        if (rotations < 6){
+            if (!started){ 
                 // this will only run while sensor is still on starting color for first time
-                if (getColor().equals(startColor) == false){
-                    onColor = false;
-                    start = false;
+                if (!getCurrentColor().equals(startColor)){
+                    onStartColor = false;
+                    started = true;
                 }
-            } else if (!onColor){
+            } else if (!onStartColor){
                 // runs while sensor is rotating on other colors
-                if (getColor().equals(startColor)){
-                    onColor = true;
+                if (getCurrentColor().equals(startColor)){
+                    onStartColor = true;
                 }
-            } else if (onColor && !start){
+            } else if (onStartColor && started){
                 // this will run any other time, sensor is on start color
-                if (getColor().equals(startColor) == false){
+                if (getCurrentColor().equals(startColor) == false){
                     rotations++;
-                    onColor = false;
+                    onStartColor = false;
                 }
             }
-            controlMotor.set(0.5);
+            controlMotor.set(0.4);
+        } else {
+            controlMotor.set(0);
         }
-        controlMotor.set(0);
+
     }    
 
     public void positionControl(){
-        // GET THE FMS COLOR \\
-        Color fmsColor = getFMSColor();
-        /* while(fmsColor.equals(Color.NONE)){
-            fmsColor = getFMSColor();
-        } */
-        Color[] allColors = new Color[]{Color.RED, Color.YELLOW, Color.BLUE, Color.GREEN};
-        Color toStop = getStopColor(fmsColor, allColors);        
-        while(getColor().equals(toStop) == false){
-            // while the sensor does not see the fms color
-            controlMotor.set(0.5);
-        }
-        controlMotor.set(0);
-    }
+        FieldColor fmsColor = getFMSColor();
+        //FieldColor[] allColors = new FieldColor[]{FieldColor.RED, FieldColor.YELLOW, FieldColor.BLUE, FieldColor.GREEN};
+        //FieldColor toStop = getStopColor(fmsColor, allColors);  
 
-
-    // Helper methods --------------------------------------------------------------------------------
-    public boolean checkForRotation(int rotations){ 
-        // external helper method to determine if should keep rotating
-        if (rotations == 3){
-            return false;
+        if (!getCurrentColor().equals(fmsColor)){
+            controlMotor.set(0.3);
+        } else {
+            controlMotor.set(0);
         }
-        return true;
     }
 
     public Color getStopColor(Color fmsColor, Color[] allColors){
+
         int stopIndex= Arrays.asList(allColors).indexOf(fmsColor);
+
         if (stopIndex == 0){
             return allColors[allColors.length - 1];
-        }
-        else{
+        } else{
             return allColors[stopIndex - 1];
         }
+    }
+    
+    public FieldColor getCurrentColor() {
+        Color detectedColor = colorSensor.getColor();
+        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
+
+        if (match.color == kBlueTarget) {
+            return FieldColor.BLUE;
+          } else if (match.color == kRedTarget) {
+            return FieldColor.RED;
+          } else if (match.color == kGreenTarget) {
+            return FieldColor.GREEN;
+          } else if (match.color == kYellowTarget) {
+            return FieldColor.YELLOW;
+          } else {
+            return FieldColor.UNKOWN;
+          }
 
     }
 
-    public RawColor getRawColor(){
-        return colorSensor.getRawColor();
-    }
-
-    public Color getColor()
-    {
-        RawColor color = getRawColor();
-        //These constants decide what is considered "full enough" or "empty enough" for a given value, since RGB values are 0 or 250
-
-        final int FULL = 250;
-        final int EMPTY = 5;
-
-        if(color.red<= EMPTY && color.green>=FULL && color.blue>=FULL) return Color.BLUE;
-        else if(color.red>=FULL && color.green>=FULL && color.blue<=EMPTY) return Color.YELLOW;
-        else if(color.red <= EMPTY && color.green>=FULL && color.blue<=EMPTY ) return Color.GREEN;
-        else if(color.red>=FULL && color.green<=EMPTY && color.blue<=EMPTY ) return Color.RED;
-        else return Color.NONE;
-    }
-
-    public Color getFMSColor(){
-        Color color;
+    public FieldColor getFMSColor(){
+        FieldColor color;
         String gameData = DriverStation.getInstance().getGameSpecificMessage();
+        
         if (gameData.length() > 0){
             switch(gameData.charAt(0)){
                 case 'B':
-                    color = Color.BLUE; break;
+                    color = FieldColor.BLUE; break;
                 case 'G':
-                    color = Color.GREEN; break;
+                    color = FieldColor.GREEN; break;
                 case 'R':
-                    color = Color.RED; break;
+                    color = FieldColor.RED; break;
                 case 'Y':
-                    color = Color.YELLOW; break;
+                    color = FieldColor.YELLOW; break;
                 default:
-                    System.out.println("CORRUPT GAME DATA!!!");
-                    color = Color.NONE; 
+                    color = FieldColor.UNKOWN; 
                     break;
-            }
+            }              
+        } else {
+            //Color Not Found
+            color = FieldColor.NONE;
         }
-        else{
-            System.out.println("NO GAME DATA RECEIVED YET");
-            color = Color.NONE;
-        }
+
+        SmartDashboard.putString("FMS Color", color.toString());
+
         return color;
     }
 

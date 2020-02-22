@@ -73,7 +73,6 @@ public class Autonomous {
 	}
 
 //------------------------------------------------------------Power Port----------------------------------------------------------------------
-	
 
 	public void assemblePP_shootTrench(){
 		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_PP, 10), 

@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.controller.RamseteController;
@@ -34,13 +35,32 @@ import java.nio.file.Paths;
 public class Commands {
 
     private final Drivebase m_robotDrive = Robot.drivebase;
+    public HashMap<String, Command> trajectoryMap;
 
-    public Command getAutonomousCommand() throws Exception {
+    public Commands() {
+        initializeTrajectories();
+    }
 
-        double lP = SmartDashboard.getNumber("lP value", 9.1);
+    public void initializeTrajectories() {
+
+        trajectoryMap = new HashMap<>();
+
+        List<Pose2d> PP_Trench = List.of(
+                new Pose2d(0,0,Rotation2d.fromDegrees(0)),
+                //new Pose2d(0.837,0.893,Rotation2d.fromDegrees(56.505)),
+                new Pose2d(1.617,1.773,Rotation2d.fromDegrees(0))
+        );
+
+        trajectoryMap.put("PP_Trench", getAutoCommand(PP_Trench));
+    }
+
+
+    public Command getAutoCommand(List<Pose2d> list) {
+
+        double lP = SmartDashboard.getNumber("lP value", 0.0);
         double lI = SmartDashboard.getNumber("lI value", 0.0);
         double lD = SmartDashboard.getNumber("lD value", 0.0);
-        double rP = SmartDashboard.getNumber("rP value", 9.1);
+        double rP = SmartDashboard.getNumber("rP value", 0.0);
         double rI = SmartDashboard.getNumber("rI value", 0.0);
         double rD = SmartDashboard.getNumber("rD value", 0.0);
 
@@ -59,7 +79,6 @@ public class Commands {
     
         
        /* Trajectory trajectory = null;
-
         try {
                 trajectory = TrajectoryUtil.fromPathweaverJson(Paths.get("/home/lvuser/deploy/output/Test.wpilib.json"));
         } catch(Exception e){
@@ -67,11 +86,7 @@ public class Commands {
         } */
 
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-            List.of(
-                new Pose2d(0,0,Rotation2d.fromDegrees(0)),
-                //new Pose2d(0.837,0.893,Rotation2d.fromDegrees(56.505)),
-                new Pose2d(1.617,1.773,Rotation2d.fromDegrees(0))
-            ),
+            list,
             config
         );
         
@@ -83,7 +98,7 @@ public class Commands {
             new SimpleMotorFeedforward(0.117, 2.25, 0.225),
             RobotMap.kDriveKinematics,
             m_robotDrive::getWheelSpeeds,
-            new PIDController(lP, rI, rD),
+            new PIDController(lP, lI, lD),
             new PIDController(rP, rI, rD),
             m_robotDrive::setOutputVolts,
             m_robotDrive
@@ -91,5 +106,7 @@ public class Commands {
 
         return ramseteCommand.andThen(() -> m_robotDrive.setOutputVolts(0, 0));
     } 
+
+
 
 }

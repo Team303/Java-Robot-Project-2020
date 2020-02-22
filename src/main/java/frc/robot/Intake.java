@@ -13,8 +13,10 @@ import com.playingwithfusion.CANVenom.*;
 import com.playingwithfusion.*;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
@@ -30,28 +32,44 @@ public class Intake {
 
 
     public Intake(){
-        deploy = new Solenoid(RobotMap.INTAKE_PISTON);
-        intake = new CANSparkMax(RobotMap.INTAKE, CANSparkMaxLowLevel.MotorType.kBrushless);
-        indexer = new CANSparkMax(RobotMap.INDEXER, CANSparkMaxLowLevel.MotorType.kBrushless);
-        motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
+        //deploy = new Solenoid(RobotMap.INTAKE_PISTON);
+        //intake = new CANSparkMax(RobotMap.INTAKE, CANSparkMaxLowLevel.MotorType.kBrushless);
+        //motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
 
+        indexer = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
+        indexer.setInverted(RobotMap.INDEXER_INV);
 
     }
 
 
     public void control() {
+        double power = SmartDashboard.getNumber("Indexer Shooter Power", 0.3);
+        
         if (OI.lBtn[2]) {
-            intakeControl(0.5);
+            setIndexer(power);
+        } else if (OI.rBtn[3]) {
+            setIndexer(-power);
         } else {
-            intakeControl(0);
+            setIndexer(0);
         }
+    }
 
+    public void setIndexer(double power) {
+        indexer.set(power);
+
+        /*
+        if (power == 0 && Robot.shooter.shooterOverride) {
+            //Do Nothing
+        } else if (power == 0 && !Robot.shooter.shooterOverride){
+            indexer.set(0);
+        } else {
+            indexer.set(power);
+        }*/
     }
 
     public void intakeControl(double power) {
 
         intake.set(power);
-
 
         if (ballDetected()) {
             setIndexer(0.3);
@@ -61,22 +79,9 @@ public class Intake {
         
     }
 
-    public void setIndexer(double power) {
-
-        if (power == 0 && Robot.shooter.shooterRunning) {
-            //Do Nothing
-        } else if (power == 0 && !Robot.shooter.shooterRunning){
-            indexer.set(0);
-        } else {
-            indexer.set(power);
-        }
-
-    }
-
     public boolean ballDetected() {            
-        double distance = motionSensor.getRange();
         double range = 100;
-        return (distance <= range);
+        return (motionSensor.getRange() <= range);
     }
 
 	public void deploy(boolean state) {

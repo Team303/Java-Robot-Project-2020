@@ -7,6 +7,10 @@
 
 package frc.robot.Action;
 
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Robot;
+import edu.wpi.first.wpilibj2.command.Command;
+
 /**
  * Add your docs here.
  */
@@ -14,19 +18,26 @@ public class ActionTrajectory implements Action {
 
     String trajectoryName = "";
     int timeout = 15;
+    Command commandToRun;
 
     public ActionTrajectory(String trajectoryName, int timeout) {
         this.trajectoryName = trajectoryName;
         this.timeout = timeout;
+        commandToRun = Robot.commands.trajectoryMap.get(trajectoryName);
+        commandToRun.schedule();
     }
 
     public void run() {
-        
+        CommandScheduler.getInstance().run();        
     }
 
     public boolean isFinished() {
 
-        return true;
+        if (commandToRun.isFinished()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

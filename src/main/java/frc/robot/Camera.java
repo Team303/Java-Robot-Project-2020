@@ -12,26 +12,29 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * Add your docs here.
  */
 public class Camera {
-
-
 	public Camera() {
 
 	}
 
 	public static final class VelocitySetpoint {
-		public static final int TRENCH_RUN = 10000;
-		public static final int INITIATION_LINE_PP = 10000;
-		public static final int INITIATION_LINE_RIGHT = 10000;
-		public static final int INITIATION_LINE_LEFT = 10000;
-
+		public static final int TRENCH_RUN = 4700;
+		public static final int INITIATION_LINE_PP = 2000;
+		public static final int INITIATION_LINE_RIGHT = 2000;
+		public static final int INITIATION_LINE_LEFT = 2000;
 	}
 
+	public boolean turnToTarget(double threshold){
+        double tX = Robot.limelight.getXOffset();
+		return (Math.abs(Robot.drivebase.turnToAngle(0, -tX, threshold)) <= threshold);
+	}
 
 	public void scoreWithVision(boolean seekRight) {
 		if (!Robot.limelight.hasValidContours()) {
+			//SEEKING BEHAVIOR - WHEN VALID CONTOUR IS NOT FOUND
 			if (seekRight) Robot.drivebase.drive(0.3, -0.3);
 			else Robot.drivebase.drive(-0.3, 0.3);
 		} else {
+			//MAIN SCORING CODE!!!!!
 			if (turnToTarget(2)) {
 				Robot.shooter.useVisionSetpoint();
 				Robot.shooter.runShooter();
@@ -63,11 +66,6 @@ public class Camera {
 		return new double[] {(powSetpoint + (angleDifference*tuningConstant)), (powSetpoint - (angleDifference*tuningConstant))};
 	}
 
-
-    public boolean turnToTarget(double threshold){
-        double tX = Robot.limelight.getXOffset();
-		return (Math.abs(Robot.drivebase.turnToAngle(0, -tX, threshold)) <= threshold);
-	}
 
 
 	

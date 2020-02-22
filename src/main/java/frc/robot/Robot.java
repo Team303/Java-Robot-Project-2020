@@ -50,38 +50,23 @@ public class Robot extends TimedRobot {
 	
 	@Override
 	public void robotInit() {										
-
 		drivebase = new Drivebase();
 		Robot.drivebase.zeroEncoders();	
 		
 		navX = new NavX();
-		navX.navX.zeroYaw();		
+		navX.navX.zeroYaw();	
+
 		commands = new Commands();
+		shooter = new Shooter();
+		intake = new Intake();
         
 		/*
     	commands = new Commands();
 		shooter = new Shooter();
 		intake = new Intake();
-		drivebase = new Drivebase();
 		auto = new Autonomous();
 		camera = new Camera();
 		SmartDashboard.putNumber("Rotation Power", 0);*/
-
-		SmartDashboard.putNumber("lP value", 0.0); //1.0 but maybe not
-		SmartDashboard.putNumber("lI value", 0.0);
-		SmartDashboard.putNumber("lD value", 0.0);
-		SmartDashboard.putNumber("rP value", 0.0); //1.0 but maybe not
-		SmartDashboard.putNumber("rI value", 0.0);
-		SmartDashboard.putNumber("rD value", 0.0);
-   
-    	SmartDashboard.putNumber("kS", RobotMap.ksVolts);
-    	SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
-    	SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
-    	SmartDashboard.putNumber("Max Velocity", 2.5);
-    	SmartDashboard.putNumber("Max Acceleration", 2.0);
-
-		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
-		SmartDashboard.putBoolean("Test Bool", false);
 
 		positionChooser.addOption("Left", Position.LEFT);
 		positionChooser.addOption("Power Port", Position.PP);
@@ -96,10 +81,29 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData("Position", positionChooser);
 		SmartDashboard.putData("Autos", autoChooser);
 
-		SmartDashboard.putNumber("Shooter P", 0.3);
-		SmartDashboard.putNumber("Shooter I", 0.0);
-		SmartDashboard.putNumber("Shooter D", 1.0);
 
+		//SHOOTER TUNING
+		SmartDashboard.putNumber("Shooter P", 0.00000);
+		SmartDashboard.putNumber("Shooter FF", 0.0001754);
+		SmartDashboard.putNumber("Shooter Setpoint", 0);
+		SmartDashboard.putNumber("Indexer Shooter Power", 0.3);
+
+
+		//TRAJECTORY TUNING
+		SmartDashboard.putNumber("lP value", 0.0); //1.0 but maybe not
+		SmartDashboard.putNumber("lI value", 0.0);
+		SmartDashboard.putNumber("lD value", 0.0);
+		SmartDashboard.putNumber("rP value", 0.0); //1.0 but maybe not
+		SmartDashboard.putNumber("rI value", 0.0);
+		SmartDashboard.putNumber("rD value", 0.0);
+   
+    	SmartDashboard.putNumber("kS", RobotMap.ksVolts);
+    	SmartDashboard.putNumber("kV", RobotMap.kvVoltSecondsPerMeter);
+    	SmartDashboard.putNumber("kA", RobotMap.kaVoltSecondsSquaredPerMeter);
+    	SmartDashboard.putNumber("Max Velocity", 2.5);
+    	SmartDashboard.putNumber("Max Acceleration", 2.0);
+
+		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
 
 	}
 
@@ -119,14 +123,7 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Robot.drivebase.zeroEncoders();
 		Robot.drivebase.reset();
-
-		try{
-			autoCommand = commands.getAutonomousCommand();
-		} catch (Exception e) {
-			System.out.println("Cannot Make Autonomous Command");
-		}
-
-		autoCommand.schedule();
+		navX.zeroYaw();
 
 		Position position = positionChooser.getSelected();
 		
@@ -138,10 +135,7 @@ public class Robot extends TimedRobot {
 			assemblePPAutos();
 		}
 
-		System.out.println("--------------START AUTO-------------");
-
 	}
-
 
 
 	public void assemblePPAutos() {
@@ -180,6 +174,7 @@ public class Robot extends TimedRobot {
 		
 		
 	}
+	
 	public void assembleRightAutos() {
 		Auto selected = autoChooser.getSelected();
 
@@ -206,18 +201,9 @@ public class Robot extends TimedRobot {
 	 * This function is called periodically during autonomous
 	 */
 	@Override
-	public void autonomousPeriodic() {
-		
-		auto.run(); 
+	public void autonomousPeriodic() {	
 		Robot.drivebase.periodic();
-		CommandScheduler.getInstance().run();
-    
-		System.out.println("LEFT PWR: " + Robot.drivebase.leftMaster.get());
-		System.out.println("DIFFERENCE: " + (Robot.drivebase.leftMaster.getMotorOutputVoltage() - Math.abs(Robot.drivebase.rightMaster.getMotorOutputVoltage())));
-		System.out.println("-----------------------------");
-
-		//System.out.println("RIGHT PWR: " + Robot.drivebase.rightMaster.getMotorOutputVoltage());
-
+		auto.run(); 
 	}
 
 	/**
@@ -225,7 +211,6 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopInit() {
-		navX.navX.zeroYaw();
 	}
 
 	/**
@@ -234,22 +219,17 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		OI.update();
-
 		Robot.drivebase.periodic();
-		Robot.drivebase.drive(-OI.lY, -OI.rY);
+		Robot.shooter.control();
+		Robot.intake.control();
 
-		//Robot.drivebase.turnToAngle(Robot.navX.getYaw(), 85, 2);
-    
-    /*
-		boolean testBool = SmartDashboard.getBoolean("Test Bool", false);
 
-		double pow = SmartDashboard.getNumber("Rotation Power", 0);
-		if (!testBool){
-			Robot.drivebase.drive(pow, -pow);
+		if (OI.lBtn[6]) {
+			Robot.camera.turnToTarget(2);
+		} else {
+			Robot.drivebase.drive(-OI.lY, -OI.rY);
 		}
-		else if (testBool) {
-			Robot.drivebase.drive(-pow, -pow);
-		}*/
+    
 	}
 
 	public void updateSmartDashboard() {
@@ -272,5 +252,12 @@ public class Robot extends TimedRobot {
 		//Joystick Values
 		SmartDashboard.putNumber("Left Joystick", OI.lY);
 		SmartDashboard.putNumber("Right Joystick", OI.rY);
+
+		//Shooter & Indexer Control
+		SmartDashboard.putNumber("Shooter Velocity", Robot.shooter.getVelocity());
+		SmartDashboard.putNumber("Shooter Temperature", Robot.shooter.shooter.getMotorTemperature());
+		SmartDashboard.putNumber("Shooter Current", Robot.shooter.shooter.getOutputCurrent());
+		SmartDashboard.putNumber("Shooter Actual Setpoint (DON'T TOUCH)", Robot.shooter.setpoint);
+
 	}
 }

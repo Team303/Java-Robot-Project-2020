@@ -30,6 +30,10 @@ public class Intake {
     public Solenoid deploy;
 
 
+    public static final double INDEXER_INTAKE_SPEED = 0.3;
+    public static final double INDEXER_SHOOTER_SPEED = 0.6;
+
+
 
     public Intake(){
         //deploy = new Solenoid(RobotMap.INTAKE_PISTON);
@@ -56,8 +60,34 @@ public class Intake {
 
     public void setIndexer(double power) {
         indexer.set(power);
+    }
 
-        /*
+
+    public void intakeControl(double power) {
+
+        intake.set(power);
+        double powerIndexer = SmartDashboard.getNumber("Indexer Intake Power", 0.3);
+
+        if (ballDetected()) {
+            setIndexer(powerIndexer);
+        } else {
+            setIndexer(0);
+        }
+        
+    }
+
+    public boolean ballDetected() {     
+        double range = SmartDashboard.getNumber("Sensor Range", 100);       
+        boolean detected = (motionSensor.getRange() <= range);
+        SmartDashboard.putBoolean("Ball Detected", detected);
+        return detected;
+    }
+
+	public void deploy(boolean state) {
+        deploy.set(state);
+	}
+
+    /*
         if (power == 0 && Robot.shooter.shooterOverride) {
             //Do Nothing
         } else if (power == 0 && !Robot.shooter.shooterOverride){
@@ -65,27 +95,5 @@ public class Intake {
         } else {
             indexer.set(power);
         }*/
-    }
-
-    public void intakeControl(double power) {
-
-        intake.set(power);
-
-        if (ballDetected()) {
-            setIndexer(0.3);
-        } else {
-            setIndexer(0);
-        }
-        
-    }
-
-    public boolean ballDetected() {            
-        double range = 100;
-        return (motionSensor.getRange() <= range);
-    }
-
-	public void deploy(boolean state) {
-        deploy.set(state);
-	}
 
 }

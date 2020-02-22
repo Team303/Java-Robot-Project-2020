@@ -87,6 +87,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Shooter FF", 0.0001754);
 		SmartDashboard.putNumber("Shooter Setpoint", 0);
 		SmartDashboard.putNumber("Indexer Shooter Power", 0.3);
+		SmartDashboard.putNumber("Indexer Intake Power", 0.3);
+		SmartDashboard.putNumber("Sensor Range", 100);
 
 
 		//TRAJECTORY TUNING

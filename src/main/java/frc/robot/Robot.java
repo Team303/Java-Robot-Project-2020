@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Action.ActionWait;
-
+import edu.wpi.first.wpilibj.Compressor;
 import java.io.IOException;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -39,11 +39,14 @@ public class Robot extends TimedRobot {
 	public static Drivebase drivebase;
 	public static Commands commands;
 	public static Command autoCommand;
+	public static Climber climber;
 	public static Limelight limelight;
 	public static Camera camera;
 	public static Intake intake;
 	public static Shooter shooter;
 	public static Axis axis;
+	public static ColorSensor colorSensor;
+	public static Compressor compressor;
 	
 	private SendableChooser<Auto> autoChooser = new SendableChooser<>();
 
@@ -59,6 +62,12 @@ public class Robot extends TimedRobot {
 		commands = new Commands();
 		shooter = new Shooter();
 		intake = new Intake();
+		climber = new Climber();
+		camera = new Camera();
+		limelight = new Limelight();
+		colorSensor = new ColorSensor();
+
+		compressor = new Compressor();
         
 		/*
     	commands = new Commands();
@@ -83,13 +92,15 @@ public class Robot extends TimedRobot {
 
 
 		//SHOOTER TUNING
-		SmartDashboard.putNumber("Shooter P", 0.00000);
+		SmartDashboard.putNumber("Shooter P", 0.0004);
 		SmartDashboard.putNumber("Shooter FF", 0.0001754);
-		SmartDashboard.putNumber("Shooter Setpoint", 0);
-		SmartDashboard.putNumber("Indexer Shooter Power", 0.3);
-		SmartDashboard.putNumber("Indexer Intake Power", 0.3);
-		SmartDashboard.putNumber("Sensor Range", 100);
+		SmartDashboard.putNumber("Shooter I", 0.00000);
 
+   		SmartDashboard.putNumber("Shooter Setpoint", 0);
+		SmartDashboard.putNumber("Indexer Shooter Power", 0.7);
+		SmartDashboard.putNumber("Indexer Intake Power", 0.4);
+		SmartDashboard.putNumber("Sensor Range", 100);
+		SmartDashboard.putNumber("Intake Power", 0.9);
 
 		//TRAJECTORY TUNING
 		SmartDashboard.putNumber("lP value", 0.0); //1.0 but maybe not
@@ -117,6 +128,7 @@ public class Robot extends TimedRobot {
 		if (OI.lZ < 0.5) {
 			drivebase.zeroEncoders();
 			navX.zeroYaw();
+			climber.zeroEncoders();
 		}
 		
 	}
@@ -129,6 +141,10 @@ public class Robot extends TimedRobot {
 
 		Position position = positionChooser.getSelected();
 		
+
+		compressor.setClosedLoopControl(false);
+		compressor.stop();
+
 		if (position == Position.LEFT) {
 			assembleLeftAutos();			
 		} else if (position == Position.RIGHT) {
@@ -213,6 +229,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void teleopInit() {
+		compressor.setClosedLoopControl(true);
 	}
 
 	/**
@@ -224,14 +241,41 @@ public class Robot extends TimedRobot {
 		Robot.drivebase.periodic();
 		Robot.shooter.control();
 		Robot.intake.control();
+		Robot.climber.control();
+		Robot.colorSensor.control();
+
+		if ((Math.abs(OI.lY) > 0.1) || (Math.abs(OI.rY) > 0.1)) {
+			SmartDashboard.putString("DOING", "NO");
 
 
-		if (OI.lBtn[6]) {
-			Robot.camera.turnToTarget(2);
+
+			Robot.drivebase.drive(-adjustVals(OI.lY), -adjustVals(OI.rY));
+		} else if(OI.rBtn[4]) {
+			SmartDashboard.putString("DOING", "DOING");
+			Robot.camera.turnToTarget(1);
+		} else if (OI.lPov == 0) {
+			drivebase.drive(-0.25, -0.25);
+		} else if (OI.lPov == 180) {
+			drivebase.drive(0.25, 0.25);
+		} else if (OI.lPov == 90) {
+			drivebase.drive(-0.25, 0.25);
+		} else if (OI.lPov == 270) {
+			drivebase.drive(0.25, -0.25);
 		} else {
-			Robot.drivebase.drive(-OI.lY, -OI.rY);
+			drivebase.drive(0,0);
 		}
+
     
+	}
+
+	private double adjustVals(double in){
+	
+		int adjFact = 1;
+		if(in>=0){
+			return Math.abs(Math.pow(in, adjFact));
+		}else{
+			return -Math.abs(Math.pow(in, adjFact));
+		}
 	}
 
 	public void updateSmartDashboard() {
@@ -260,6 +304,10 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Shooter Temperature", Robot.shooter.shooter.getMotorTemperature());
 		SmartDashboard.putNumber("Shooter Current", Robot.shooter.shooter.getOutputCurrent());
 		SmartDashboard.putNumber("Shooter Actual Setpoint (DON'T TOUCH)", Robot.shooter.setpoint);
+		SmartDashboard.putNumber("Climber Position", Robot.climber.getPosition());
 
 	}
+
+
+
 }

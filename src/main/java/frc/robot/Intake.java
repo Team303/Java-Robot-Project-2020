@@ -36,26 +36,51 @@ public class Intake {
 
 
     public Intake(){
-        //deploy = new Solenoid(RobotMap.INTAKE_PISTON);
-        //intake = new CANSparkMax(RobotMap.INTAKE, CANSparkMaxLowLevel.MotorType.kBrushless);
+        deploy = new Solenoid(RobotMap.INTAKE_SOLENOID);
+        intake = new CANSparkMax(RobotMap.INTAKE, MotorType.kBrushless);
+        intake.setInverted(RobotMap.INTAKE_INV);
         //motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
 
         indexer = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
         indexer.setInverted(RobotMap.INDEXER_INV);
 
+        deploy(false);
+
     }
 
 
     public void control() {
+
+        
         double power = SmartDashboard.getNumber("Indexer Shooter Power", 0.3);
         
+        double intakePower = SmartDashboard.getNumber("Intake Power", 0.3);
+
+
+
         if (OI.lBtn[2]) {
+            intake.set(intakePower);
+        } else if (OI.lBtn[6]){
+            intake.set(-intakePower);
+        } else {
+            intake.set(0);
+        }
+
+        if (OI.lBtn[5]) {
             setIndexer(power);
-        } else if (OI.rBtn[3]) {
-            setIndexer(-power);
+        } else if (OI.lBtn[3]) {
+            setIndexer(-0.3);
         } else {
             setIndexer(0);
         }
+
+        if (OI.xBtnA) {
+            deploy(false);
+        } else if (OI.xBtnY) {
+            deploy(true);
+
+        }
+
     }
 
     public void setIndexer(double power) {

@@ -33,17 +33,27 @@ public class RobotMap {
 
 	public static final int INDEXER = 10;
 	public static final boolean INDEXER_INV = true;
-	public static final int INTAKE = -1;
+	public static final int INTAKE = 11;
+	public static final boolean INTAKE_INV = false;
+
 	public static final int MOTION_SENSOR = -1;
 
 	public static final int SHOOTER = 8;
 	public static final int SHOOTER_SLAVE = 9;
 	public static final boolean SHOOTER_INV = true;
-	public static final boolean SHOOTER_SLAVE_INV = true;
+	public static final boolean SHOOTER_SLAVE_INV = false;
+	public static final int CLIMBER = 13;
+	public static final int CLIMBER_SLAVE = 14;
+	public static final boolean CLIMBER_INV = true;
+	public static final boolean CLIMBER_SLAVE_INV = false;
+
+	public static final int CLIMBER_SOLENOID = 0;
+	public static final int INTAKE_SOLENOID = 1;
 
 
-	public static final int INTAKE_PISTON = -1;
-	public static final int CONTROL_PANEL = -1;
+	//hi ameya
+	public static final int CONTROL_PANEL = 12;
+	public static final boolean CONTROL_PANEL_INV = false;
 
 
 	// FROM ROBOT CHARACTERIZATION \\

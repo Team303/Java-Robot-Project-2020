@@ -20,7 +20,8 @@ import frc.robot.Action.ActionTrajectory;
 import frc.robot.Action.ActionWait;
 import frc.robot.Action.ActionParallelAction;
 import frc.robot.Action.ActionTurnToTarget;
-import frc.robot.Action.ActionTurnToAngle;;
+import frc.robot.Action.ActionTurnToAngle;
+import frc.robot.Action.ActionShooterStop;
 
 
 
@@ -75,9 +76,9 @@ public class Autonomous {
 //------------------------------------------------------------Power Port----------------------------------------------------------------------
 
 	public void assemblePP_shootTrench(){
-		arr.add(new ActionParallelAction(new ActionWait(7), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_PP, 10), 
+		arr.add(new ActionParallelAction(new ActionWait(5), new ActionShooter(false, Camera.VelocitySetpoint.INITIATION_LINE_PP, 10), 
 			new ActionIntakeDeploy(true)));
-		arr.add(new ActionTrajectory("PP_Trench", 15));
+		arr.add(new ActionParallelAction(new ActionTrajectory("PP_Trench", 15), new ActionShooterStop()));
 		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));
 		arr.add(new ActionParallelAction(new ActionDriveStraightByEncoders(10000, 0.3, 15.0), new ActionIntake(15.0)));
 		arr.add(new ActionTurnToAngle(0, ANGLE_THRESHOLD));

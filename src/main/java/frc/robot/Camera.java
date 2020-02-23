@@ -24,7 +24,8 @@ public class Camera {
 	}
 
 	public boolean turnToTarget(double threshold){
-        double tX = Robot.limelight.getXOffset();
+		double tX = Robot.limelight.getXOffset();
+		SmartDashboard.putNumber("PRINT", tX);
 		return (Math.abs(Robot.drivebase.turnToAngle(0, -tX, threshold)) <= threshold);
 	}
 

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import edu.wpi.first.wpilibj.util.Color;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class ColorSensor{
     private final ColorSensorV3 colorSensor;
@@ -39,8 +40,19 @@ public class ColorSensor{
 
     public ColorSensor(){
         colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
-        controlMotor = new CANSparkMax(RobotMap.CONTROL_PANEL, CANSparkMaxLowLevel.MotorType.kBrushless);
+        controlMotor = new CANSparkMax(RobotMap.CONTROL_PANEL, MotorType.kBrushless);
+        controlMotor.setInverted(RobotMap.CONTROL_PANEL_INV);
         controlMotor.setIdleMode(IdleMode.kBrake);
+    }
+
+    public void control() {
+        if (OI.rBtn[4]) {
+            controlMotor.set(0.3);
+        } else if (OI.rBtn[6]) {
+            controlMotor.set(-0.3);
+        } else {
+            controlMotor.set(0);
+        }
     }
 
     public void rotationControl(){

@@ -126,6 +126,8 @@ public class Drivebase extends SubsystemBase {
 			power = 0;
 		}
 
+		SmartDashboard.putNumber("TURNING", power);
+
 		drive(Math.copySign(power, distanceError), -Math.copySign(power, distanceError));
 
 		return distanceError;

@@ -17,12 +17,13 @@ public class Camera {
 	}
 
 	public static final class VelocitySetpoint {
-		public static final int TRENCH_RUN = 4700;
-		public static final int INITIATION_LINE_PP = 2000;
-		public static final int INITIATION_LINE_RIGHT = 2000;
-		public static final int INITIATION_LINE_LEFT = 2000;
+		public static final int TRENCH_RUN = 5250;
+		public static final int INITIATION_LINE_PP = 5000;
+		public static final int INITIATION_LINE_RIGHT = 4900;
+		public static final int INITIATION_LINE_LEFT = 5000;
 	}
 
+	
 	public boolean turnToTarget(double threshold){
 		double tX = Robot.limelight.getXOffset();
 		SmartDashboard.putNumber("PRINT", tX);

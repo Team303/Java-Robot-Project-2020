@@ -16,12 +16,13 @@ import frc.robot.Robot;
  * Add your docs here.
  */
 public class ActionShooter implements Action{
-    //makes varibles that will be for time stuff
+
     double timeout; 
     Timer t;
     boolean limelight = false;
 
     public ActionShooter(boolean limelight, double setpoint, double timeout){
+        t = new Timer();
         t.start();
         this.timeout = timeout;
         this.limelight = limelight;
@@ -33,7 +34,7 @@ public class ActionShooter implements Action{
     @Override
     public void run() {
         if (limelight) Robot.shooter.useVisionSetpoint();
-        Robot.shooter.runShooter();
+        Robot.shooter.shooterPIDControl();
     }
 
 
@@ -42,8 +43,6 @@ public class ActionShooter implements Action{
         boolean end = t.get() >= timeout;
 
         if(end){
-            Robot.shooter.setSetpoint(0);
-            Robot.shooter.runShooter();
             t.stop();
             t.reset();
         }

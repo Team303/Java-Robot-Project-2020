@@ -6,28 +6,41 @@
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.Action;
-import frc.robot.Robot;
+
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Add your docs here.
  */
-public class ActionShooterStop implements Action {
+public class ActionDelayedAction implements Action {
 
 
-    public ActionShooterStop() {
+    Timer timer = new Timer();
+    double time;
+    boolean firstRun = true;
+    Action action;
+
+    public ActionDelayedAction(double time, Action action) {
+        this.time = time;
+        this.action = action;
     }
 
     public void run() {
-
-        if (Robot.shooter.getSetpoint() >= 0) {
-            Robot.shooter.setSetpoint(Robot.shooter.getSetpoint() - 70);
-        } else {
-            Robot.shooter.setSetpoint(0);
+        if (firstRun) {
+            timer.start();
+            firstRun = false;
         }
-        Robot.shooter.shooterPIDControl();
+
+        if (timer.get() >= time) {
+            action.run();
+        }
+        
     }
+
 
     public boolean isFinished() {
-        return (Robot.shooter.getSetpoint() <= 0);
+        return action.isFinished();
     }
+
+
 }

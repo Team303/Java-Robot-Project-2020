@@ -14,18 +14,17 @@ import frc.robot.Robot;
 
 public class ActionTurnToTarget implements Action {
 
-    double threshold = 2;
+    double threshold = 1;
 
     public ActionTurnToTarget(double threshold) {
         this.threshold = threshold;
     }
    
     public void run() {
-        //Actual method is run from isFinished method
     }
 
     public boolean isFinished() {
-        return Robot.camera.turnToTarget(2);
+        return Robot.camera.turnToTarget(1);
     }
 
 }

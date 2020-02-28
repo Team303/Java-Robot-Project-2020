@@ -26,6 +26,7 @@ public class ActionDriveStraightByPose implements Action {
 
 
     public ActionDriveStraightByPose(double intendedX, double indendedY, double power, double timeout) {
+        t = new Timer();
         this.power = power;
         this.intendedX = intendedX;
         this.indendedY = indendedY;

@@ -15,7 +15,7 @@ import frc.robot.Robot;
  */
 public class ActionIndexer implements Action {
 
-    Timer timer = new Timer();
+    Timer timer;
     double power = 0.0;
     double timeout;
 
@@ -24,6 +24,7 @@ public class ActionIndexer implements Action {
     }
 
     public ActionIndexer(double timeout, double power) {
+        timer = new Timer();
         this.timeout = timeout;
         this.power = power;
         timer.start();
@@ -32,7 +33,6 @@ public class ActionIndexer implements Action {
     @Override
     public void run() {
         Robot.intake.setIndexer(power);
-
     }
 
     public boolean isFinished() {

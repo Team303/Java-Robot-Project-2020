@@ -25,12 +25,18 @@ public class ActionTurnToAngle implements Action {
 
 
     public void run() {
-        error = Robot.drivebase.turnToAngle(Robot.navX.getYaw(), angle, tolerance);
+        error = Robot.drivebase.turnToAngle(Robot.navX.getYaw(), 0, 2);
     }
 
 
     public boolean isFinished() {
-        boolean end = (Math.abs(error) <= tolerance);
+        //boolean end = (Math.abs(error) <= tolerance);
+        boolean end = Math.abs(Robot.navX.getYaw()) < 2;
+        
+
+        if (end) {
+            Robot.drivebase.drive(0,0);
+        }
         return end;
     }
 

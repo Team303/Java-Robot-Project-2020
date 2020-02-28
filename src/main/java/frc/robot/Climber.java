@@ -54,17 +54,17 @@ public Climber(){
     //------------------------------------------------------------------controller control----------------------------------------------------------------
     public void control(){ 
 
-        if (OI.rBtn[2] && getPosition() >=0) {
+        if ((OI.xlY >=0.2 || OI.lBtn[5]) && getPosition() >=0) {
             setClimber(-0.5);
-        } else if (OI.rBtn[3] && getPosition() <= 74) {
+        } else if ((OI.xlY <=-0.2 || OI.lBtn[3] ) && getPosition() <= 120) {
             setClimber(0.5);
         } else {
             setClimber(0);
         }
 
-        if (OI.xBtnX) {
+        if (OI.lBtn[5]) {
             deployClimber(false);
-        } else if (OI.xBtnB) {
+        } else if (OI.lBtn[3]) {
             deployClimber(true);
         }
             

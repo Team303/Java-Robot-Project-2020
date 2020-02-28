@@ -105,7 +105,7 @@ public class Drivebase extends SubsystemBase {
 	public double turnToAngle(double current, double intended, double tolerance) {
 
 		double slope45 = 0.00628212;  //0.0105
-		double intercept45 = 0.27	; // 0.25
+		double intercept45 = 0.3	; // 0.25
 		double slope90 = 0;
 		double intercept90 = 0;
 		double slope180 = 0;
@@ -113,13 +113,14 @@ public class Drivebase extends SubsystemBase {
 
 		double distanceError = distanceBetweenAngles(current, intended);
 		double power = 0;
+		SmartDashboard.putNumber("Distance Error", distanceError);
 
 		if (Math.abs(distanceError) <= 90) {
-			power = intercept45 + (slope45 * distanceError);
+			power = intercept45 + (slope45 * Math.abs(distanceError));
 		} else if (Math.abs(distanceError) <= 90) {
-			power = intercept90 + (slope90 * distanceError);
+			power = intercept90 + (slope90 * Math.abs(distanceError));
 		} else if (Math.abs(distanceError) <= 180) {
-			power = intercept180 + (slope180 * distanceError);
+			power = intercept180 + (slope180 * Math.abs(distanceError));
 		}
 
 		if (Math.abs(distanceError) <= tolerance) {

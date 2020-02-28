@@ -36,6 +36,7 @@ public class Axis {
 		
 		AxisCamera camera = CameraServer.getInstance().addAxisCamera("10.3.3.8");
 		camera.setResolution(cameraResX, cameraResY);
+	
 
 		CvSink cvSink = CameraServer.getInstance().getVideo(); //capture mats from camera\
 		CvSource outputStream = CameraServer.getInstance().putVideo("Stream", cameraResX, cameraResY); //send steam to CameraServer

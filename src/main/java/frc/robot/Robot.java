@@ -47,6 +47,8 @@ public class Robot extends TimedRobot {
 	public static Axis axis;
 	public static ColorSensor colorSensor;
 	public static Compressor compressor;
+
+	double adjustment = 0.75;
 	
 	private SendableChooser<Auto> autoChooser = new SendableChooser<>();
 
@@ -66,6 +68,7 @@ public class Robot extends TimedRobot {
 		camera = new Camera();
 		limelight = new Limelight();
 		colorSensor = new ColorSensor();
+		auto = new Autonomous();
 
 		compressor = new Compressor();
         
@@ -81,7 +84,6 @@ public class Robot extends TimedRobot {
 		positionChooser.addOption("Power Port", Position.PP);
 		positionChooser.addOption("Right", Position.RIGHT);
 
-		positionChooser.addOption("Left", Position.LEFT);
 
 		for(Auto auto : Auto.values()) {
 			autoChooser.addOption(auto.toString(), auto);
@@ -130,6 +132,20 @@ public class Robot extends TimedRobot {
 			navX.zeroYaw();
 			climber.zeroEncoders();
 		}
+
+		if (OI.rZ < 0.5) {
+			Robot.limelight.ledMode.setNumber(1);
+		} else if (OI.rBtn[7]) {
+			Robot.limelight.ledMode.setNumber(1);
+		} else if (OI.lBtn[7]) {
+			Robot.limelight.ledMode.setNumber(2);
+		} else {
+			//DEFAULT
+			Robot.limelight.ledMode.setNumber(0);
+		}
+
+
+		Robot.colorSensor.testing();
 		
 	}
 
@@ -244,23 +260,27 @@ public class Robot extends TimedRobot {
 		Robot.climber.control();
 		Robot.colorSensor.control();
 
+
+		if (OI.rBtn[4]) {
+			adjustment = 1.0;
+		} else {
+			adjustment = 0.75;
+		}
+
 		if ((Math.abs(OI.lY) > 0.1) || (Math.abs(OI.rY) > 0.1)) {
 			SmartDashboard.putString("DOING", "NO");
-
-
-
-			Robot.drivebase.drive(-adjustVals(OI.lY), -adjustVals(OI.rY));
-		} else if(OI.rBtn[4]) {
+			Robot.drivebase.drive(adjustment * -adjustVals(OI.lY), adjustment * -adjustVals(OI.rY));
+		} else if(OI.rBtn[2]) {
 			SmartDashboard.putString("DOING", "DOING");
 			Robot.camera.turnToTarget(1);
-		} else if (OI.lPov == 0) {
-			drivebase.drive(-0.25, -0.25);
-		} else if (OI.lPov == 180) {
-			drivebase.drive(0.25, 0.25);
-		} else if (OI.lPov == 90) {
-			drivebase.drive(-0.25, 0.25);
-		} else if (OI.lPov == 270) {
-			drivebase.drive(0.25, -0.25);
+		} else if (OI.rPov == 0) {
+			drivebase.drive(-0.35, -0.35);
+		} else if (OI.rPov == 180) {
+			drivebase.drive(0.35, 0.35);
+		} else if (OI.rPov == 90) {
+			drivebase.drive(0.35, -0.35);
+		} else if (OI.rPov == 270) {
+			drivebase.drive(-0.35, 0.35);
 		} else {
 			drivebase.drive(0,0);
 		}
@@ -270,7 +290,8 @@ public class Robot extends TimedRobot {
 
 	private double adjustVals(double in){
 	
-		int adjFact = 1;
+		double adjFact = 1;
+
 		if(in>=0){
 			return Math.abs(Math.pow(in, adjFact));
 		}else{
@@ -305,6 +326,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Shooter Current", Robot.shooter.shooter.getOutputCurrent());
 		SmartDashboard.putNumber("Shooter Actual Setpoint (DON'T TOUCH)", Robot.shooter.setpoint);
 		SmartDashboard.putNumber("Climber Position", Robot.climber.getPosition());
+
+
 
 	}
 

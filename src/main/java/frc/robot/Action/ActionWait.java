@@ -13,35 +13,38 @@ import edu.wpi.first.wpilibj.Timer;
  * Add your docs here.
  */
 public class ActionWait implements Action {
-    double time;
+    double timeout;
+    Timer t;
     boolean firstRun;
 
-    Timer t = new Timer();
-
-    public ActionWait(double time){
-        this.time = time;
-        firstRun = false;
-   
+    public ActionWait(double timeout){
+        t = new Timer();
+        this.timeout = timeout;
+        firstRun = true;
     }
 
     @Override
     public void run() {
-        if(!firstRun){
+        if (firstRun) {
             t.start();
-            firstRun = true;
+            firstRun = false;
         }
+
+
         
     }
 
     @Override
     //checks if we ran long enough
     public boolean isFinished() {
-        boolean end = t.get() >= time;
 
-        if(end){
+        boolean end = t.get() >= timeout;
+        if (end) {
+            firstRun = true;
             t.stop();
             t.reset();
         }
+
 
         return end;
         

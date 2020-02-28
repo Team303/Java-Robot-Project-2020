@@ -24,8 +24,9 @@ public class Shooter {
 
 	boolean shooterOverride;
 	double setpoint = 0;
+	boolean positive = false;
 
-	public boolean shooterStop = false;
+	public boolean stopInitiated = false;
 
 	public static final int GEARING = 1;
 	double encoderConstant = (1 / GEARING) * 1;
@@ -46,7 +47,26 @@ public class Shooter {
 	
 
 	public void control() {
-		setSetpoint(SmartDashboard.getNumber("Shooter Setpoint", 0));
+
+		if (OI.xBtnA || stopInitiated) {
+			stopShooter();
+		} else if (OI.xBtnY){
+			//setSetpoint(Camera.VelocitySetpoint.TRENCH_RUN);
+			setSetpoint(SmartDashboard.getNumber("Shooter Setpoint", 0));
+			stopInitiated = false;
+		} else if (OI.xBtnB) {
+			setSetpoint(Camera.VelocitySetpoint.INITIATION_LINE_PP);
+			stopInitiated = false;
+		} else if (OI.xBtnX) {
+			useVisionSetpoint();
+			stopInitiated = false;
+		} else if (OI.xrY >= 0.2) {
+			setSetpoint(getSetpoint() - 200);
+		} else if (OI.xrY <= -0.2) {
+			setSetpoint(getSetpoint() + 200);
+		}
+
+
 		shooterPIDControl();
 	}
 
@@ -56,25 +76,46 @@ public class Shooter {
 		double kI = SmartDashboard.getNumber("Shooter I", 0.00000);
 
 		double error = setpoint - getVelocity();
-		//double power = (feedforward * setpoint) + (kP * error);
-
 		
 		pidController.setP(kP);
 		pidController.setI(kI);
 		pidController.setD(0);
-		
+
+		if (setpoint < 10) {
+			pidController.setP(0);
+		} 
 
 		double power = feedforward * setpoint + pidController.calculate(getVelocity(), setpoint);
 
+		SmartDashboard.putNumber("PID Setpoint", setpoint);
+
 		SmartDashboard.putNumber("PID Power", power);
-		SmartDashboard.putNumber("PID Error", power);
+		SmartDashboard.putNumber("PID Error", error);
 		SmartDashboard.putNumber("PID P Addn", kP * error);
 		SmartDashboard.putNumber("PID FF Addn", feedforward * setpoint);
-
 
 		shooter.set(power);
 		shooterSlave.set(power);
 	}
+
+	public void stopShooter() {
+		if (setpoint > 0) {
+			positive = true;
+			stopInitiated = true;
+			setpoint -= 50;
+		} else if (setpoint < 0) {
+			positive = false;
+			stopInitiated = true;
+			setpoint += 50;
+		} else if ( positive && setpoint <= 0) {
+			stopInitiated = false;
+			setpoint = 0;
+		} else if (!positive && setpoint >= 0) {
+			stopInitiated = false;
+			setpoint = 0;
+		}
+	}
+
 
 	public void runShooter() {
 		shooterPIDControl();
@@ -108,15 +149,6 @@ public class Shooter {
 
 	public double getVelocity() {
 		return shooterEncoder.getVelocity();
-	}
-
-	public void stopShooter() {
-		if (setpoint > 0 && shooterStop) {
-			setpoint -= 100;
-		} else if (setpoint <= 0) {
-			setpoint = 0;
-			shooterStop = false;
-		}
 	}
 
 	public double getSetpoint() {

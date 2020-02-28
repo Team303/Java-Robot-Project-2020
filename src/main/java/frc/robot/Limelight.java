@@ -13,6 +13,8 @@ public class Limelight {
     NetworkTableEntry tx;
     NetworkTableEntry ty;
     NetworkTableEntry ta;
+    NetworkTableEntry driverCam;
+    public NetworkTableEntry ledMode;
 
      
     public Limelight() {
@@ -21,6 +23,8 @@ public class Limelight {
         tx = table.getEntry("tx");
         ty = table.getEntry("ty");
         ta = table.getEntry("ta");
+        driverCam = table.getEntry("camMode");
+        ledMode = table.getEntry("ledMode");
 
     }
 
@@ -48,5 +52,14 @@ public class Limelight {
     public boolean hasValidContours() {
         if(tv.getDouble(0.0) < 1)return false;
         return true;
+    }
+
+    public void switchToVision(boolean vision) {
+        if (vision) {
+            driverCam.setNumber(1);
+        } else {
+            driverCam.setNumber(0);
+        }
+
     }
 }

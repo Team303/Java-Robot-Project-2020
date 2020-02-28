@@ -11,23 +11,30 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Robot;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/**
- * Add your docs here.
- */
+
 public class ActionTrajectory implements Action {
 
     String trajectoryName = "";
     int timeout = 15;
     Command commandToRun;
+    boolean firstRun = true;
 
     public ActionTrajectory(String trajectoryName, int timeout) {
         this.trajectoryName = trajectoryName;
         this.timeout = timeout;
-        commandToRun = Robot.commands.trajectoryMap.get(trajectoryName);
-        commandToRun.schedule();
+        
+        firstRun = true;
+
     }
 
+
     public void run() {
+
+        if (firstRun) {
+                commandToRun = Robot.commands.trajectoryMap.get(trajectoryName);
+                commandToRun.schedule();
+            firstRun = false;
+        }
         CommandScheduler.getInstance().run();        
     }
 

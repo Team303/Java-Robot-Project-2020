@@ -35,7 +35,7 @@ public class ColorSensor{
 
 
     enum FieldColor {
-        RED, GREEN, BLUE, YELLOW, NONE, UNKOWN
+        RED, GREEN, BLUE, YELLOW, NONE, UNKNOWN
     }
 
     public ColorSensor(){
@@ -43,16 +43,61 @@ public class ColorSensor{
         controlMotor = new CANSparkMax(RobotMap.CONTROL_PANEL, MotorType.kBrushless);
         controlMotor.setInverted(RobotMap.CONTROL_PANEL_INV);
         controlMotor.setIdleMode(IdleMode.kBrake);
+
+        colorMatcher.addColorMatch(kBlueTarget);
+        colorMatcher.addColorMatch(kGreenTarget);
+        colorMatcher.addColorMatch(kRedTarget);
+        colorMatcher.addColorMatch(kYellowTarget); 
+
     }
 
+    public void testing() {
+        SmartDashboard.putNumber("Color Red", colorSensor.getRed());
+        SmartDashboard.putNumber("Color Blue", colorSensor.getBlue());
+        SmartDashboard.putNumber("Color Green", colorSensor.getGreen());
+        SmartDashboard.putString("Current Color", getCurrentColor().toString());
+        SmartDashboard.putString("CURRENT COLOR", getCurrentColor().toString());
+        SmartDashboard.putString("FMS COLOR", getFMSColor().toString());
+    }
+
+
     public void control() {
-        if (OI.rBtn[4]) {
+        if (OI.rBtn[3]) {
             controlMotor.set(0.3);
-        } else if (OI.rBtn[6]) {
+        } else if (OI.rBtn[5]) {
             controlMotor.set(-0.3);
         } else {
-            controlMotor.set(0);
+
+            if (OI.xLeftBumper) {
+                positionControl();
+            } else if (OI.xRightBumper) {
+                rotationControl();
+            } else {
+                controlMotor.set(0);
+            }
         }
+
+
+    }
+
+    public FieldColor getCurrentColor() {
+        Color detectedColor = colorSensor.getColor();
+        String colorString;
+        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
+    
+        if (match.color == kBlueTarget) {
+          return FieldColor.BLUE;
+        } else if (match.color == kRedTarget) {
+            return FieldColor.RED;
+        } else if (match.color == kGreenTarget) {
+            return FieldColor.GREEN;
+        } else if (match.color == kYellowTarget) {
+            return FieldColor.YELLOW;
+        } else {
+            return FieldColor.UNKNOWN;
+        }
+
+
     }
 
     public void rotationControl(){
@@ -92,8 +137,9 @@ public class ColorSensor{
         //FieldColor[] allColors = new FieldColor[]{FieldColor.RED, FieldColor.YELLOW, FieldColor.BLUE, FieldColor.GREEN};
         //FieldColor toStop = getStopColor(fmsColor, allColors);  
 
+
         if (!getCurrentColor().equals(fmsColor)){
-            controlMotor.set(0.3);
+            controlMotor.set(0.2);
         } else {
             controlMotor.set(0);
         }
@@ -109,24 +155,7 @@ public class ColorSensor{
             return allColors[stopIndex - 1];
         }
     }
-    
-    public FieldColor getCurrentColor() {
-        Color detectedColor = colorSensor.getColor();
-        ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
 
-        if (match.color == kBlueTarget) {
-            return FieldColor.BLUE;
-          } else if (match.color == kRedTarget) {
-            return FieldColor.RED;
-          } else if (match.color == kGreenTarget) {
-            return FieldColor.GREEN;
-          } else if (match.color == kYellowTarget) {
-            return FieldColor.YELLOW;
-          } else {
-            return FieldColor.UNKOWN;
-          }
-
-    }
 
     public FieldColor getFMSColor(){
         FieldColor color;
@@ -143,7 +172,7 @@ public class ColorSensor{
                 case 'Y':
                     color = FieldColor.YELLOW; break;
                 default:
-                    color = FieldColor.UNKOWN; 
+                    color = FieldColor.UNKNOWN; 
                     break;
             }              
         } else {

@@ -36,7 +36,7 @@ public class ActionIntake implements Action {
     @Override
     //running the intake method
     public void run() {       
-        Robot.intake.intakeControl(power);
+        Robot.intake.intake.set(power);
     }
 
     @Override
@@ -47,7 +47,6 @@ public class ActionIntake implements Action {
         boolean end = timer.get() >= timeout;
         
         if(end){
-            Robot.intake.intakeControl(power);
             timer.stop();
             timer.reset();
         }

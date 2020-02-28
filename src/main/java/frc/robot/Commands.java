@@ -47,7 +47,6 @@ public class Commands {
 
         List<Pose2d> PP_Trench = List.of(
                 new Pose2d(0,0,Rotation2d.fromDegrees(0)),
-                //new Pose2d(0.837,0.893,Rotation2d.fromDegrees(56.505)),
                 new Pose2d(1.617,1.773,Rotation2d.fromDegrees(0))
         );
 
@@ -95,7 +94,7 @@ public class Commands {
             trajectory,
             m_robotDrive::getPose,
             new RamseteController(2,0.7),
-            new SimpleMotorFeedforward(0.117, 2.25, 0.225),
+            new SimpleMotorFeedforward(kS, kV, kA),
             RobotMap.kDriveKinematics,
             m_robotDrive::getWheelSpeeds,
             new PIDController(lP, lI, lD),

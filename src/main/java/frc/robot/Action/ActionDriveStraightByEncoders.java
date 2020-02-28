@@ -22,9 +22,10 @@ public class ActionDriveStraightByEncoders implements Action {
 	Timer timer = new Timer();
 	public double initalYaw = 0.0;
 	public int initial = 0;
+    boolean firstRun = true;
 
-    boolean firstRun = false;
-    Timer t = new Timer();
+    double tuningConstant = 0.005;
+
 
 
     public ActionDriveStraightByEncoders(double distance, double power, double timeout){
@@ -36,14 +37,19 @@ public class ActionDriveStraightByEncoders implements Action {
 
     @Override
     public void run() {
-        if(!firstRun){
-            initalYaw = Robot.navX.getYaw();
-			t.start();
+        if(firstRun){
+            initalYaw = 0;
+			timer.start();
 			initial = Robot.drivebase.getLeftEncoder();
-			firstRun = true;
+			firstRun = false;
         }
 
-        double[] pow = Action.driveStraight(power, Robot.navX.getYaw() - initalYaw, 0.005);
+        if (power > 0) {
+            tuningConstant = -0.009;
+        } else {
+            tuningConstant = -0.009;
+        }
+        double[] pow = Action.driveStraight(power, Robot.navX.getYaw(), tuningConstant);
 		Robot.drivebase.drive(pow[0], pow[1]);		
     }
 
@@ -55,7 +61,6 @@ public class ActionDriveStraightByEncoders implements Action {
     public boolean isFinished() {
         
         if(timer.get()>=timeout) timer.stop();
-
 		return Math.abs(Robot.drivebase.getLeftEncoder()-initial) >= Math.abs(distance) || timer.get() >=timeout;
 
     }

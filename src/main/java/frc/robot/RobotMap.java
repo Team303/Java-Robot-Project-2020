@@ -57,16 +57,16 @@ public class RobotMap {
 
 
 	// FROM ROBOT CHARACTERIZATION \\
-	public static final double ksVolts = 0.843; 					
-	public static final double kvVoltSecondsPerMeter = 0.915;	
-	public static final double kaVoltSecondsSquaredPerMeter = 0.1; // characterization - 0.252
+	public static final double ksVolts = 0.201; //0.843					
+	public static final double kvVoltSecondsPerMeter = 2.2;	//0.915
+	public static final double kaVoltSecondsSquaredPerMeter = 0.307; // characterization - 0.1
 	
-	public static final double kTrackWidthMeters = 0.7874;
+	public static final double kTrackWidthMeters = 0.603;
 	public static final DifferentialDriveKinematics kDriveKinematics = 
 		new DifferentialDriveKinematics(kTrackWidthMeters);
 
-	public static final int kEncoderCPR = 2350;
-	public static final double kWheelDiameterMeters = 0.1016;
+	public static final int kEncoderCPR = 20480;
+	public static final double kWheelDiameterMeters = 0.156;
 	public static final double kEncoderConstant =
 		(kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
 

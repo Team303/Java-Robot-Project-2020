@@ -52,7 +52,7 @@ public class Shooter {
 			stopShooter();
 		} else if (OI.xBtnY){
 			//setSetpoint(Camera.VelocitySetpoint.TRENCH_RUN);
-			setSetpoint(SmartDashboard.getNumber("Shooter Setpoint", 0));
+			setSetpoint(Camera.VelocitySetpoint.TRENCH_RUN);
 			stopInitiated = false;
 		} else if (OI.xBtnB) {
 			setSetpoint(Camera.VelocitySetpoint.INITIATION_LINE_PP);
@@ -134,7 +134,7 @@ public class Shooter {
 	}
 
 	public void useVisionSetpoint() {
-		setSetpoint(getSetpointFromDistance());
+		setSetpoint(Camera.VelocitySetpoint.INITIATION_LINE_LEFT);
 	}
 
 	public double getSetpointFromDistance() {

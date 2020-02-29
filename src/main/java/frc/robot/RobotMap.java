@@ -36,14 +36,14 @@ public class RobotMap {
 	public static final int INTAKE = 11;
 	public static final boolean INTAKE_INV = false;
 
-	public static final int MOTION_SENSOR = -1;
+	public static final int MOTION_SENSOR = 14;
 
 	public static final int SHOOTER = 8;
 	public static final int SHOOTER_SLAVE = 9;
 	public static final boolean SHOOTER_INV = true;
 	public static final boolean SHOOTER_SLAVE_INV = false;
 	public static final int CLIMBER = 13;
-	public static final int CLIMBER_SLAVE = 14;
+	public static final int CLIMBER_SLAVE = 20;
 	public static final boolean CLIMBER_INV = true;
 	public static final boolean CLIMBER_SLAVE_INV = false;
 

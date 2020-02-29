@@ -120,6 +120,9 @@ public class Robot extends TimedRobot {
 
 		SmartDashboard.putNumber("Trajectory Multiplier", 1.0);
 
+		SmartDashboard.putNumber("Indexer Min Range", 50);
+		SmartDashboard.putNumber("Indexer Max Range", 200);
+
 	}
 
 	@Override
@@ -167,6 +170,8 @@ public class Robot extends TimedRobot {
 			assembleRightAutos();
 		} else if (position == Position.PP) {
 			assemblePPAutos();
+		} else{
+			auto.assembleDoNothing();
 		}
 
 	}
@@ -183,7 +188,9 @@ public class Robot extends TimedRobot {
 			auto.assemblePP_shootTrench();
 		} else if (selected == Auto.DO_NOTHING) {
 			auto.assembleDoNothing();
-		}	
+		} else{
+			auto.assembleDoNothing();
+		}
 
 	}
 
@@ -204,7 +211,9 @@ public class Robot extends TimedRobot {
 			auto.assembleLL_drivePPShootTrench();
 		} else if(selected == Auto.DO_NOTHING) {
 			auto.assembleDoNothing();
-		}	
+		}else{
+			auto.assembleDoNothing();
+		}
 		
 		
 	}
@@ -219,6 +228,8 @@ public class Robot extends TimedRobot {
 		} else if (selected == Auto.SHOOT_TRENCH) {
 			auto.assembleRR_shootTrenchShoot();
 		} else if (selected == Auto.DO_NOTHING) {
+			auto.assembleDoNothing();
+		} else{
 			auto.assembleDoNothing();
 		}
 
@@ -326,6 +337,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Shooter Current", Robot.shooter.shooter.getOutputCurrent());
 		SmartDashboard.putNumber("Shooter Actual Setpoint (DON'T TOUCH)", Robot.shooter.setpoint);
 		SmartDashboard.putNumber("Climber Position", Robot.climber.getPosition());
+
+		SmartDashboard.putNumber("Motion Sensor Range", Robot.intake.motionSensor.getRange());
 
 
 

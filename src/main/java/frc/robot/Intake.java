@@ -28,6 +28,7 @@ public class Intake {
     public CANSparkMax indexer;
     public TimeOfFlight motionSensor;
     public Solenoid deploy;
+    public boolean intakeDown = false;
 
 
     public static final double INDEXER_INTAKE_SPEED = 0.3;
@@ -39,12 +40,13 @@ public class Intake {
         deploy = new Solenoid(RobotMap.INTAKE_SOLENOID);
         intake = new CANSparkMax(RobotMap.INTAKE, MotorType.kBrushless);
         intake.setInverted(RobotMap.INTAKE_INV);  
-        //motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
+        motionSensor = new TimeOfFlight(RobotMap.MOTION_SENSOR);
 
         indexer = new CANSparkMax(RobotMap.INDEXER, MotorType.kBrushless);
         indexer.setInverted(RobotMap.INDEXER_INV);
 
         deploy(false);
+        intakeDown = false;
 
     }
 
@@ -68,7 +70,12 @@ public class Intake {
         } else if (OI.xRightTrigger >= 0.75) {
             setIndexer(power);
         } else {
-            setIndexer(0);
+
+            if (ballDetected() && intakeDown) {
+                setIndexer(0.3);
+            } else {
+                setIndexer(0);
+            }
         }
 
         if (OI.lBtn[4]) {
@@ -84,28 +91,19 @@ public class Intake {
     }
 
 
-    public void intakeControl(double power) {
 
-        intake.set(power);
-        double powerIndexer = SmartDashboard.getNumber("Indexer Intake Power", 0.3);
+    public boolean ballDetected() { 
+        double minRange = SmartDashboard.getNumber("Indexer Min Range", 50)  ; 
+        double maxRange = SmartDashboard.getNumber("Indexer Max Range", 200)  ; 
 
-        if (ballDetected()) {
-            setIndexer(powerIndexer);
-        } else {
-            setIndexer(0);
-        }
-        
-    }
-
-    public boolean ballDetected() {     
-        double range = SmartDashboard.getNumber("Sensor Range", 100);       
-        boolean detected = (motionSensor.getRange() <= range);
+        boolean detected = (minRange <= motionSensor.getRange() && motionSensor.getRange() <= maxRange);
         SmartDashboard.putBoolean("Ball Detected", detected);
         return detected;
     }
 
 	public void deploy(boolean state) {
         deploy.set(state);
+        intakeDown = state;
 	}
 
     /*

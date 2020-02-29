@@ -47,19 +47,19 @@ public class Drivebase extends SubsystemBase {
 		rightMaster.setSensorPhase(false);
 		rightMaster.setNeutralMode(NeutralMode.Brake);
 	
-		WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
+		/* WPI_TalonFX leftSlave0 = new WPI_TalonFX(3);
 		leftSlave0.setInverted(false);
 		leftSlave0.follow(leftMaster);
-		leftSlave0.setNeutralMode(NeutralMode.Brake);
+		leftSlave0.setNeutralMode(NeutralMode.Brake); */
 		WPI_TalonFX leftSlave1 = new WPI_TalonFX(4);
 		leftSlave1.setInverted(false);
 		leftSlave1.follow(leftMaster);
 		leftSlave1.setNeutralMode(NeutralMode.Brake);
 	
-		WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
+		/* WPI_TalonFX rightSlave0 = new WPI_TalonFX(6);
 		rightSlave0.setInverted(false);
 		rightSlave0.follow(rightMaster);
-		rightSlave0.setNeutralMode(NeutralMode.Brake);
+		rightSlave0.setNeutralMode(NeutralMode.Brake); */
 		WPI_TalonFX rightSlave1 = new WPI_TalonFX(7);
 		rightSlave1.setInverted(false);
 		rightSlave1.follow(rightMaster);
